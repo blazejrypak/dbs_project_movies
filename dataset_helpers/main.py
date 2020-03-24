@@ -62,11 +62,7 @@ def general_parser(relative_file_path, output_file_name, column_to_parse, *args)
         dict_keys = []
         with open(relative_file_path, newline='') as read_file:
             reader = csv.DictReader(read_file)
-            count = 0
             for row in reader:
-                # count += 1
-                # if count > 5:
-                #     break
                 for name in columns2parse:
                     try:
                         cell_obj = ast.literal_eval(row[name])
@@ -105,7 +101,7 @@ def general_parser(relative_file_path, output_file_name, column_to_parse, *args)
 
 timestampStr = datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)")
 
-general_parser('/home/bubo/Desktop/DBMS_PROJECT/the-movies-dataset/movies_metadata.csv', f'parse_{timestampStr}',
-               'genres', 'id', 'popularity')
 # general_parser('/home/bubo/Desktop/DBMS_PROJECT/the-movies-dataset/movies_metadata.csv', f'parse_{timestampStr}',
-#                'belongs_to_collection', 'id', 'adult')
+#                'genres', 'id')
+general_parser('/home/bubo/Desktop/DBMS_PROJECT/the-movies-dataset/movies_metadata.csv', f'parse_{timestampStr}',
+               'belongs_to_collection', 'movieid', 'adult')
