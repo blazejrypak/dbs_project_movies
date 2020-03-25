@@ -1,5 +1,5 @@
 """
-WSGI config for moviedb project.
+WSGI config for movie_projx project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'moviedb.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'movie_projx.settings')
 
 application = get_wsgi_application()
