@@ -25,3 +25,4 @@ urlpatterns = [
     url(r'^movie_app/', include('movie_app.urls')),
     url(r'^logout/$', views.user_logout, name='logout'),
 ]
+
