@@ -97,6 +97,10 @@ def user_login(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         row = get_row(f"""SELECT password, is_active FROM auth_user WHERE username='{username}'""")
+        if row is None:
+            print("Someone tried to login and failed.")
+            print("They used username: {} and password: {}".format(username, password))
+            return HttpResponse("Invalid login details given")
         password_encoded = row[0]
         user_is_active = row[1]
         if password is not None:

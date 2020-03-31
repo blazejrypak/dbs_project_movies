@@ -1,4 +1,5 @@
 # Default ignored files
 /workspace.xml
 /venv
-/geckodriver.log
+.idea
+/movie_projx/movie_app/__

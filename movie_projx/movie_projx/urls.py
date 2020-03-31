@@ -22,7 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^$', views.index, name='index'),
     url(r'^special/', views.special, name='special'),
-    url(r'^movie_app/', include('movie_app.urls')),
+    url(r'^movie_app/', include('movie_app.urls', namespace='movie_app')),
     url(r'^logout/$', views.user_logout, name='logout'),
 ]
 
