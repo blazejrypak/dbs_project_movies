@@ -40,9 +40,4 @@ class Movies(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return 'Movie'
-
-    class Meta:
-        managed = False
-        db_table = 'movies'
-
+        return 'movies'

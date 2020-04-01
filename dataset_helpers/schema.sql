@@ -104,3 +104,5 @@ CREATE TABLE Casts
     created_at timestamp with time zone not null,
     updated_at timestamp with time zone not null
 );
+
+SELECT * FROM Movies;

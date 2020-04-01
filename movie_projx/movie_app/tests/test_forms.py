@@ -73,16 +73,16 @@ class SignInViewTest(TestCase):
         self.user.delete()
 
     def test_correct(self):
-        response = self.client.post(reverse('movie_app:user_login'),
+        response = self.client.post(reverse('user_login'),
                                     {'username': 'example_username', 'password': 'example_password'})
         self.assertTrue(response.status_code, 302)
 
     def test_wrong_username(self):
-        response = self.client.post(reverse('movie_app:user_login'),
+        response = self.client.post(reverse('user_login'),
                                     {'username': 'wrong', 'password': 'example_password'})
         self.assertTrue(response.status_code == 200 and 'Invalid' in str(response.content))
 
     def test_wrong_password(self):
-        response = self.client.post(reverse('movie_app:user_login'),
+        response = self.client.post(reverse('user_login'),
                                     {'username': 'example_username', 'password': 'wrong'})
         self.assertTrue(response.status_code == 200 and 'Invalid' in str(response.content))

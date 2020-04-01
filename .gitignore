@@ -2,3 +2,13 @@
 /workspace.xml
 /venv
 .idea
+/movie_projx/media
+*.log
+
+*.pyc
+
+*/*/*/__pycache__/
+
+*/*/__pycache__/
+
+*/__pycache__/
