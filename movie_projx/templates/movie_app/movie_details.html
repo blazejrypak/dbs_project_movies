@@ -1,0 +1,54 @@
+{% extends 'movie_app/base.html' %}
+{% load static %}
+{% block body_block %}
+    <!-- Page Content -->
+    <div class="container">
+
+        <!-- Portfolio Item Heading -->
+        <h1 class="my-4 badge-success">{{ movie.original_title }}
+        </h1>
+        <h3 class="badge-info">{{ movie.tagline }}</h3>
+
+        <!-- Portfolio Item Row -->
+        <div class="row">
+
+            <div class="col-md-8">
+                <img class="img-fluid"
+                     src="https://assetsapi.unreel.me/images/crop/260/390/http%3A%2F%2Fimghost.device.screenmedia.net%2F20782114-e524-4984-87b9-436f822085ab-1584547292.png?"
+                     alt="">
+            </div>
+            <div class="col-md-4">
+                <h3 class="my-3 badge-success">{{ movie.title }}</h3>
+                <h4 class="my-3">{{ movie.rating }}</h4>
+                {% if movie.languages %}
+                    <h3 class="my-3">
+                        {% for language in movie.languages %}
+                            <span>{{ language.name }}</span>
+                        {% endfor %}
+                    </h3>
+                {% endif %}
+                {% if movie.genres %}
+                    <h3 class="my-3">
+                        {% for genre in movie.genres %}
+                            <span>{{ genre.name|upper }}</span>
+                        {% endfor %}
+                    </h3>
+                {% endif %}
+                {% if movie.production_countries %}
+                    <h3 class="my-3">
+                        {% for production_country in movie.production_countries %}
+                            <span>{{ production_country.name }}</span>
+                        {% endfor %}
+                    </h3>
+                {% endif %}
+                <ul class="list-unstyled">
+                    <li>Year: {{ movie.release_date }}</li>
+                    <li>Runtime: {{ movie.runtime }}</li>
+                </ul>
+            </div>
+
+        </div>
+        <!-- /.row -->
+        <p>{{ movie.overview }}</p>
+        <!-- /.container -->
+{% endblock %}

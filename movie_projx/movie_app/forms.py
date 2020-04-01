@@ -1,6 +1,6 @@
 from django import forms
-from .models import UserProfileInfo
 from django.contrib.auth.models import User
+from .models import UserProfileInfo, Movies
 
 
 class UserForm(forms.ModelForm):

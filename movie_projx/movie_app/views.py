@@ -1,14 +1,20 @@
-from django.shortcuts import render
-from .forms import UserForm, UserProfileInfoForm
+from datetime import datetime
+
 from django.contrib.auth import authenticate, login, logout
-from django.http import HttpResponseRedirect, HttpResponse
-from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import *
-from django.contrib.auth.models import User
+from django.core.paginator import Paginator
 from django.db import connection
+from django.db.models import Q
+from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
+from django.views import generic
+
 from movie_projx import settings
-from datetime import datetime
+from .forms import UserForm, UserProfileInfoForm
+from .models import Movies
+
 
 def get_row(sql):
     with connection.cursor() as cursor:
@@ -117,3 +123,32 @@ def user_login(request):
                 return HttpResponse("Invalid login details given")
     else:
         return render(request, 'movie_app/login.html', {})
+
+
+def list_movies(request):
+    movie_list = Movies.objects.all()
+    paginator = Paginator(movie_list, 25)  # Show 25 movies per page.
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'movie_app/movies.html', {'page_obj': page_obj})
+
+def movie_details(request, movie_id):
+    movie = get_object_or_404(Movies, movieid=movie_id)
+    return render(request, 'movie_app/movie_details.html', {'movie': movie})
+
+
+class SearchResultsView(generic.ListView):
+    model = Movies
+    template_name = 'movie_app/movies.html'
+
+
+    def get_queryset(self):
+        query = self.request.GET.get('q')
+        object_list = Movies.objects.filter(Q(title__icontains=query))
+        return object_list
+
+def search_results(request):
+    query = request.GET.get('q')
+    movie_list = Movies.objects.filter(title__icontains=query)[:15]
+    return render(request, 'movie_app/movies.html', {'movies': movie_list, 'page_obj': None})

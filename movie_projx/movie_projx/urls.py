@@ -22,7 +22,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^$', views.index, name='index'),
     url(r'^special/', views.special, name='special'),
-    url(r'^movie_app/', include('movie_app.urls', namespace='movie_app')),
+    url(r'^movies/', include('movie_app.urls'), name='movie_app'),
+    url(r'^register/$', views.register, name='register'),
+    url(r'^user_login/$', views.user_login, name='user_login'),
     url(r'^logout/$', views.user_logout, name='logout'),
 ]
 

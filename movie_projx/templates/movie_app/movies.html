@@ -1,0 +1,56 @@
+{% extends 'movie_app/base.html' %}
+{% load static %}
+{% block body_block %}
+    <div class="container mx-auto mt-5 py-5">
+        <br><br><br>
+        <div class="container">
+            <div class="row">
+                <div class="search-container">
+                    <form action="{% url 'movie_app:search_results' %}" method="get">
+                        <input type="text" placeholder="Search.." name="q">
+                        <button style="padding: 6px 10px;margin-top: 8px;margin-right: 16px;font-size: 17px;border: none;cursor: pointer;"
+                                type="submit"><i class="fa fa-search"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            {% for movie in movies %}
+                <div class="col-sm-4">
+                    <img src="https://placehold.it/150x80?text=IMAGE" class="img-responsive" style="width:100%"
+                         alt="Image">
+                    <p>{{ movie.title }}</p>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <p>{{ movie.release_date }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p>{{ movie.runtime }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="row" style="background-color: #1abc9c">
+            <div class="container">
+                <div class="pagination">
+                    <span class="step-links">
+                        {% if page_obj.has_previous %}
+                            <a href="?page=1">&laquo; first</a>
+                            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                        {% endif %}
+
+                        <span class="current">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                        </span>
+
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}">next</a>
+                            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
