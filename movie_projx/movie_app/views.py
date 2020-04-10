@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -13,7 +13,8 @@ from django.views import generic
 
 from movie_projx import settings
 from .forms import UserForm, UserProfileInfoForm
-from .models import Movies
+from .models import Movies, Genres, Languages, MoviesGenres, Productioncountries, Productioncompanies, Casts, \
+    MovieRatings
 
 
 def get_row(sql):
@@ -22,6 +23,7 @@ def get_row(sql):
         row = cursor.fetchone()
         cursor.close()
         return row
+
 
 def gen_add_user_sql(_username, _email, _password):
     passw = make_password(_password, salt=None, hasher='default')
@@ -37,7 +39,7 @@ def index(request):
     if request.user.id is not None:
         print(request.user.id)
         row = get_row(f"""SELECT profile_pic FROM movie_app_userprofileinfo WHERE user_id={request.user.id}""")
-        return render(request, 'movie_app/index.html', {'avatar_url': settings.MEDIA_URL + 'profile_pics/' +row[0]})
+        return render(request, 'movie_app/index.html', {'avatar_url': settings.MEDIA_URL + 'profile_pics/' + row[0]})
     return render(request, 'movie_app/index.html')
 
 
@@ -51,11 +53,13 @@ def user_logout(request):
     logout(request)
     return HttpResponseRedirect(reverse('index'))
 
+
 def handle_uploaded_file(f, file_path):
     print("file_path: ", file_path)
-    with open('..'+file_path, 'wb+') as destination:
+    with open('..' + file_path, 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)
+
 
 def register(request):
     registered = False
@@ -79,7 +83,8 @@ def register(request):
                     print('found it')
                     profile_pic_path = request.FILES['profile_pic']
                     timestamp_str = datetime.now().strftime("%d_%b_%Y_%H_%M_%S_%f)")
-                    dest_path = '/movie_projx' + settings.MEDIA_URL + 'profile_pics/' + str(f'{timestamp_str}_' + str(profile_pic_path))
+                    dest_path = '/movie_projx' + settings.MEDIA_URL + 'profile_pics/' + str(
+                        f'{timestamp_str}_' + str(profile_pic_path))
                     handle_uploaded_file(request.FILES['profile_pic'], dest_path)
                 cur.execute(f"""
                                     INSERT INTO movie_app_userprofileinfo(profile_pic, user_id) SELECT '{profile_pic_path}', {user_id};
@@ -126,29 +131,79 @@ def user_login(request):
 
 
 def list_movies(request):
+    genres = Genres.objects.all()
+    languages = Languages.objects.all()
     movie_list = Movies.objects.all()
     paginator = Paginator(movie_list, 25)  # Show 25 movies per page.
 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    return render(request, 'movie_app/movies.html', {'page_obj': page_obj})
+    return render(request, 'movie_app/movies.html', {'page_obj': page_obj, 'genres': genres, 'languages': languages})
+
 
 def movie_details(request, movie_id):
-    movie = get_object_or_404(Movies, movieid=movie_id)
-    return render(request, 'movie_app/movie_details.html', {'movie': movie})
+    movie_obj = get_object_or_404(Movies, movieid=movie_id)
+    genres = Genres.objects.filter(moviesgenres__movie_id=movie_id)
+    production_countries = Productioncountries.objects.filter(moviesproductioncountries__movie_id=movie_id)
+    production_companies = Productioncompanies.objects.filter(moviesproductioncompanies__movie_id=movie_id)
+    casts = Casts.objects.filter(movie=movie_id)
+    return render(request, 'movie_app/movie_details.html',
+                  {'movie': movie_obj, 'genres': genres, 'production_countries': production_countries,
+                   'production_companies': production_companies, 'casts': casts})
 
 
 class SearchResultsView(generic.ListView):
     model = Movies
     template_name = 'movie_app/movies.html'
 
-
     def get_queryset(self):
         query = self.request.GET.get('q')
         object_list = Movies.objects.filter(Q(title__icontains=query))
         return object_list
 
+
+def is_checked(checkbox_value):
+    if not checkbox_value:
+        return False
+    if checkbox_value == 'on':
+        return True
+    else:
+        return False
+
+
 def search_results(request):
+    movie_list = None
     query = request.GET.get('q')
     movie_list = Movies.objects.filter(title__icontains=query)[:15]
-    return render(request, 'movie_app/movies.html', {'movies': movie_list, 'page_obj': None})
+    adult = request.GET.get('adult')
+    popular = request.GET.get('popular')
+    new_movie = request.GET.get('new_movie')
+    genre_id = request.GET.get('genre_id')
+    lang_iso_639_1 = request.GET.get('lang_iso_639_1')
+    range_min = 0.0
+    range_max = 5.0
+    date_year = 1800
+    # if is_checked(new_movie):
+    #     date_year = datetime.year-1
+    if is_checked(popular):
+        range_min = 4.0
+    if genre_id and lang_iso_639_1:
+        movie_list = Movies.objects.filter(title__icontains=query, adult=is_checked(adult),
+                                           movieratings__rating__range=(range_min, range_max),
+                                           release_date__gte=datetime.date(date_year, 1, 1),
+                                           movieslanguages__language=lang_iso_639_1,
+                                           moviesgenres__genre=genre_id)[:15]
+
+    elif genre_id:
+        movie_list = Movies.objects.filter(title__icontains=query, adult=is_checked(adult),
+                                           movieratings__rating__range=(range_min, range_max),
+                                           release_date__gte=datetime.date(date_year, 1, 1),
+                                           moviesgenres__genre=genre_id)[:15]
+    elif lang_iso_639_1:
+        movie_list = Movies.objects.filter(title__icontains=query, adult=is_checked(adult),
+                                           movieratings__rating__range=(range_min, range_max),
+                                           release_date__gte=datetime.date(date_year, 1, 1),
+                                           movieslanguages__language=lang_iso_639_1)[:15]
+    genres = Genres.objects.all()
+    languages = Languages.objects.all()
+    return render(request, 'movie_app/movies.html', {'page_obj': movie_list, 'genres': genres, 'languages': languages})

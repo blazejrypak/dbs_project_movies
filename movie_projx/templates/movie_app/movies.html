@@ -10,15 +10,63 @@
                         <input type="text" placeholder="Search.." name="q">
                         <button style="padding: 6px 10px;margin-top: 8px;margin-right: 16px;font-size: 17px;border: none;cursor: pointer;"
                                 type="submit"><i class="fa fa-search"></i></button>
+                        <div class="form-group col-md-4">
+                          <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck1" name="adult">
+                            <label class="form-check-label" for="exampleCheck1">Adult</label>
+                          </div>
+                      </div>
+                        <div class="form-group col-md-4">
+                          <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck1" name="popular">
+                            <label class="form-check-label" for="exampleCheck1">Popular</label>
+                          </div>
+                      </div>
+                        <div class="form-group col-md-4">
+                          <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck1" name="new_movie">
+                            <label class="form-check-label" for="exampleCheck1">New movies</label>
+                          </div>
+                      </div>
+                        <div class="form-group col-md-4">
+                          <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck1" name="most_commented">
+                            <label class="form-check-label" for="exampleCheck1">Most commented</label>
+                          </div>
+                      </div>
+                        <div class="form-group col-md-4">
+                          <label for="inputState">Genre</label>
+                          <select id="inputState" class="form-control" name="genre_id">
+                                <option selected value="">Choose...</option>
+                              {% for genre in genres %}
+                                <option value='{{genre.genreid}}'>{{ genre.name }}</option>
+                              {% endfor %}
+                          </select>
+                        </div>
+                        <div class="form-group col-md-4">
+                          <label for="inputState">Language</label>
+                          <select id="inputState" class="form-control" name="lang_iso_639_1">
+                                <option selected value="">Choose...</option>
+                              {% for lang in languages %}
+                                <option value='{{lang.iso_639_1}}'>{{ lang.name }}</option>
+                              {% endfor %}
+                          </select>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
         <div class="row">
-            {% for movie in movies %}
+            {% for movie in page_obj %}
                 <div class="col-sm-4">
-                    <img src="https://placehold.it/150x80?text=IMAGE" class="img-responsive" style="width:100%"
-                         alt="Image">
+                    <a href="{% url 'movie_app:details' movie_id=movie.movieid %}">
+                    {% if movie.poster_path %}
+                        <img src="https://image.tmdb.org/t/p/original{{ movie.poster_path }}" class="img-responsive" style="width:100%"
+                             alt="Image">
+                    {% else %}
+                        <img src="https://placehold.it/150x80?text=IMAGE" class="img-responsive" style="width:100%"
+                             alt="Image">
+                    {% endif %}
                     <p>{{ movie.title }}</p>
                     <div class="row">
                         <div class="col-sm-6">
@@ -28,6 +76,7 @@
                             <p>{{ movie.runtime }}</p>
                         </div>
                     </div>
+                    </a>
                 </div>
             {% endfor %}
         </div>

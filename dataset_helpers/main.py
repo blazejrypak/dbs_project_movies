@@ -62,46 +62,74 @@ def general_parser(relative_file_path, output_file_name, column_to_parse, *args)
         dict_keys = []
         with open(relative_file_path, newline='') as read_file:
             reader = csv.DictReader(read_file)
-            for row in reader:
-                for name in columns2parse:
-                    try:
-                        cell_obj = ast.literal_eval(row[name])
-                    except Exception:
-                        continue
-                    if isinstance(cell_obj, list) or isinstance(cell_obj, dict):
-                        if got_header:
-                            if isinstance(cell_obj, list):
-                                for elem in cell_obj:
+            try:
+                for row in reader:
+                    for name in columns2parse:
+                        try:
+                            cell_obj = ast.literal_eval(row[name])
+                        except Exception:
+                            continue
+                        if isinstance(cell_obj, list) or isinstance(cell_obj, dict):
+                            if got_header:
+                                if isinstance(cell_obj, list):
+                                    for elem in cell_obj:
+                                        row_values = []
+                                        for key in dict_keys:
+                                            row_values.append(elem[key])
+                                        for arg in args:
+                                            row_values.append(row[arg])
+                                        writer.writerow(row_values)
+                                elif isinstance(cell_obj, dict):
                                     row_values = []
                                     for key in dict_keys:
-                                        row_values.append(elem[key])
+                                        row_values.append(cell_obj[key])
                                     for arg in args:
                                         row_values.append(row[arg])
                                     writer.writerow(row_values)
-                            elif isinstance(cell_obj, dict):
-                                row_values = []
-                                for key in dict_keys:
-                                    row_values.append(cell_obj[key])
-                                for arg in args:
-                                    row_values.append(row[arg])
-                                writer.writerow(row_values)
-                        else:
-                            if isinstance(cell_obj, list) and len(cell_obj) > 0 and not got_header:
-                                dict_keys = cell_obj[0].keys()
-                            elif isinstance(cell_obj, dict) and not got_header:
-                                dict_keys = cell_obj.keys()
-                            if not got_header:
-                                for k in dict_keys:
-                                    output_columns.append(str(column_to_parse+'_'+k))
-                                output_columns.extend(columns2parse[1:])
-                                writer.writerow(output_columns)
-                                got_header = True
+                            else:
+                                if isinstance(cell_obj, list) and len(cell_obj) > 0 and not got_header:
+                                    dict_keys = cell_obj[0].keys()
+                                elif isinstance(cell_obj, dict) and not got_header:
+                                    dict_keys = cell_obj.keys()
+                                if not got_header:
+                                    for k in dict_keys:
+                                        output_columns.append(str(column_to_parse+'_'+k))
+                                    output_columns.extend(columns2parse[1:])
+                                    writer.writerow(output_columns)
+                                    got_header = True
+            except Exception:
+                pass
 
 
 
 timestampStr = datetime.now().strftime("%d-%b-%Y (%H:%M:%S.%f)")
 
 # general_parser('/home/bubo/Desktop/DBMS_PROJECT/the-movies-dataset/movies_metadata.csv', f'parse_{timestampStr}',
-#                'genres', 'id')
-general_parser('/home/bubo/Desktop/DBMS_PROJECT/the-movies-dataset/movies_metadata.csv', f'parse_{timestampStr}',
-               'belongs_to_collection', 'movieid', 'adult')
+#                'genres')
+# general_parser('/home/bubo/Desktop/DBMS_PROJECT/the-movies-dataset/movies_metadata.csv', f'parse_{timestampStr}',
+#                'belongs_to_collection', 'movieid')
+
+
+
+# /////////////////////////////////////////////////////////////////////////////////////////
+
+# Always add created_at, update_at as now()
+
+
+# 1. fill moviesTB, movies_metadata.csv
+
+# general_parser('/home/bubo/Desktop/DBMS_PROJECT/the-movies-dataset/movies_metadata.csv', 'genres',
+#                'genres', 'movieid')
+
+# general_parser('/home/bubo/Desktop/DBMS_PROJECT/the-movies-dataset/movies_metadata.csv', 'Languages',
+#                'spoken_languages', 'movieid')
+
+# general_parser('/home/bubo/Desktop/DBMS_PROJECT/the-movies-dataset/movies_metadata.csv', 'ProductionCompanies',
+#                'production_companies', 'movieid')
+
+# general_parser('/home/bubo/Desktop/DBMS_PROJECT/the-movies-dataset/movies_metadata.csv', 'ProductionCountries',
+#                'production_countries', 'movieid')
+
+# general_parser('/home/bubo/Desktop/DBMS_PROJECT/the-movies-dataset/credits.csv', 'Casts',
+#                'cast', 'id')
+

@@ -1,25 +1,36 @@
 {% extends 'movie_app/base.html' %}
 {% load static %}
 {% block body_block %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/css/flag-icon.min.css">
     <!-- Page Content -->
     <div class="container">
 
         <!-- Portfolio Item Heading -->
         <h1 class="my-4 badge-success">{{ movie.original_title }}
         </h1>
-        <h3 class="badge-info">{{ movie.tagline }}</h3>
+        {% if movie.tagline %}
+            <h3 class="badge-info">{{ movie.tagline }}</h3>
+        {% endif %}
 
         <!-- Portfolio Item Row -->
         <div class="row">
 
-            <div class="col-md-8">
-                <img class="img-fluid"
-                     src="https://assetsapi.unreel.me/images/crop/260/390/http%3A%2F%2Fimghost.device.screenmedia.net%2F20782114-e524-4984-87b9-436f822085ab-1584547292.png?"
-                     alt="">
+            <div class="col-md-7">
+                {% if movie.poster_path %}
+                    <img class="img-fluid" src="https://image.tmdb.org/t/p/original{{ movie.poster_path }}"
+                         class="img-responsive" style="width:100%"
+                         alt="Image">
+                {% else %}
+                    <img class="img-fluid" src="https://placehold.it/150x80?text=IMAGE" class="img-responsive"
+                         style="width:100%"
+                         alt="Image">
+                {% endif %}
             </div>
-            <div class="col-md-4">
+            <div class="col-md-5">
+                {% if movie.popularity %}
+                    <h2><span class="badge badge-warning">IMDB {{ movie.vote_average }} / 10</span></h2>
+            {% endif %}
                 <h3 class="my-3 badge-success">{{ movie.title }}</h3>
-                <h4 class="my-3">{{ movie.rating }}</h4>
                 {% if movie.languages %}
                     <h3 class="my-3">
                         {% for language in movie.languages %}
@@ -27,19 +38,55 @@
                         {% endfor %}
                     </h3>
                 {% endif %}
-                {% if movie.genres %}
-                    <h3 class="my-3">
-                        {% for genre in movie.genres %}
-                            <span>{{ genre.name|upper }}</span>
+                {% if genres %}
+                    <h6 class="my-3">
+                        {% for genre in genres %}
+                            {% if forloop.last %}
+                                <span>{{ genre.name|upper }}</span>
+                            {% else %}
+                                <span>{{ genre.name|upper }} |</span>
+                            {% endif %}
                         {% endfor %}
-                    </h3>
+                    </h6>
                 {% endif %}
-                {% if movie.production_countries %}
-                    <h3 class="my-3">
-                        {% for production_country in movie.production_countries %}
-                            <span>{{ production_country.name }}</span>
+                {% if production_countries %}
+                    <h7 class="my-3">
+                        {% for production_country in production_countries %}
+                            {% if forloop.last %}
+                                <span class="flag-icon flag-icon-{{ production_country.iso_639_1|lower }}"></span>
+                                <span>{{ production_country.name }}</span>
+                            {% else %}
+                                <span class="flag-icon flag-icon-{{ production_country.iso_639_1|lower }}"></span>
+                                <span>{{ production_country.name }} |</span>
+                            {% endif %}
                         {% endfor %}
-                    </h3>
+                    </h7>
+                {% endif %}
+            <br>
+                {% if production_companies %}
+                    <h7 class="my-3">
+                        {% for production_company in production_companies %}
+                            {% if forloop.last %}
+                                <span>{{ production_company.name }}</span>
+                            {% else %}
+                                <span>{{ production_company.name }} |</span>
+                            {% endif %}
+                        {% endfor %}
+                    </h7>
+                {% endif %}
+                {% if casts %}
+                    <h4>Casts:</h4>
+                    <p>
+                        {% for cast in casts %}
+                            {% if forloop.last %}
+                                <a href="#">{{ cast.name }}
+                            </a>
+                            {% else %}
+                            <a href="#">{{ cast.name }}
+                            </a>,
+                            {% endif %}
+                        {% endfor %}
+                    </p>
                 {% endif %}
                 <ul class="list-unstyled">
                     <li>Year: {{ movie.release_date }}</li>
