@@ -20,20 +20,15 @@ class Casts(models.Model):
     character = models.CharField(max_length=200)
     credit_id = models.CharField(max_length=250, blank=True, null=True)
     gender = models.IntegerField()
-    movie = models.ForeignKey('Movies', on_delete=models.CASCADE)
+    movie = models.ForeignKey('Movies', models.DO_NOTHING)
     name = models.CharField(max_length=200)
     order = models.IntegerField()
     profile_path = models.CharField(max_length=500, blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
-        managed = False
         db_table = 'casts'
-
 
 class Genres(models.Model):
     genreid = models.AutoField(primary_key=True)
@@ -41,11 +36,7 @@ class Genres(models.Model):
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
-        managed = False
         db_table = 'genres'
 
 
@@ -55,23 +46,17 @@ class Languages(models.Model):
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
-        managed = False
         db_table = 'languages'
 
-
 class MovieRatings(models.Model):
-    userid = models.ForeignKey(User, on_delete=models.CASCADE, db_column='userid', blank=True, null=True)
-    movieid = models.ForeignKey('Movies', on_delete=models.CASCADE, db_column='movieid', blank=True, null=True)
+    userid = models.ForeignKey(User, models.DO_NOTHING, db_column='userid', blank=True, null=True)
+    movieid = models.ForeignKey('Movies', models.DO_NOTHING, db_column='movieid', blank=True, null=True)
     rating = models.FloatField()
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'movie_ratings'
 
 
@@ -99,43 +84,38 @@ class Movies(models.Model):
     updated_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'movies'
 
 
 class MoviesGenres(models.Model):
-    genre = models.ForeignKey(Genres, on_delete=models.CASCADE)
-    movie = models.ForeignKey(Movies, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genres, models.DO_NOTHING)
+    movie = models.ForeignKey(Movies, models.DO_NOTHING)
 
     class Meta:
-        managed = False
         db_table = 'movies_genres'
 
 
 class MoviesLanguages(models.Model):
-    movie = models.ForeignKey(Movies, on_delete=models.CASCADE)
-    language = models.ForeignKey(Languages, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movies, models.DO_NOTHING)
+    language = models.ForeignKey(Languages, models.DO_NOTHING)
 
     class Meta:
-        managed = False
         db_table = 'movies_languages'
 
 
 class MoviesProductioncompanies(models.Model):
-    movie = models.ForeignKey(Movies, on_delete=models.CASCADE)
-    productioncompanies = models.ForeignKey('Productioncompanies', on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movies, models.DO_NOTHING)
+    productioncompanies = models.ForeignKey('Productioncompanies', models.DO_NOTHING)
 
     class Meta:
-        managed = False
         db_table = 'movies_productioncompanies'
 
 
 class MoviesProductioncountries(models.Model):
-    movie = models.ForeignKey(Movies, on_delete=models.CASCADE)
-    productioncountry_iso = models.ForeignKey('Productioncountries', on_delete=models.CASCADE, db_column='productioncountry_iso')
+    movie = models.ForeignKey(Movies, models.DO_NOTHING)
+    productioncountry_iso = models.ForeignKey('Productioncountries', models.DO_NOTHING, db_column='productioncountry_iso')
 
     class Meta:
-        managed = False
         db_table = 'movies_productioncountries'
 
 
@@ -145,11 +125,7 @@ class Productioncompanies(models.Model):
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
-        managed = False
         db_table = 'productioncompanies'
 
 
@@ -159,9 +135,5 @@ class Productioncountries(models.Model):
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
-        managed = False
         db_table = 'productioncountries'
