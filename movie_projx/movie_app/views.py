@@ -25,6 +25,14 @@ def get_row(sql):
         return row
 
 
+def get_all_rows(sql):
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        row = cursor.fetchall()
+        cursor.close()
+        return row
+
+
 def gen_add_user_sql(_username, _email, _password):
     passw = make_password(_password, salt=None, hasher='default')
     add_user_script = f"""INSERT INTO auth_user(password, last_login, is_superuser, username, first_name, last_name, email, is_staff, is_active, date_joined)
@@ -143,11 +151,11 @@ def list_movies(request):
 
 
 def movie_details(request, movie_id):
-    movie_obj = get_object_or_404(Movies, movieid=movie_id)
-    genres = Genres.objects.filter(moviesgenres__movie_id=movie_id)
-    production_countries = Productioncountries.objects.filter(moviesproductioncountries__movie_id=movie_id)
-    production_companies = Productioncompanies.objects.filter(moviesproductioncompanies__movie_id=movie_id)
-    casts = Casts.objects.filter(movie=movie_id)
+    movie_obj = Movies.objects.raw(f"""SELECT * FROM movies WHERE movieid = {movie_id} LIMIT 1""")[0]
+    genres = Genres.objects.raw(f"""SELECT * FROM genres INNER JOIN movies_genres ON (genres.genreid = movies_genres.genre_id) WHERE movies_genres.movie_id = {movie_id}""")
+    production_countries = Productioncountries.objects.raw(f"""SELECT * FROM productioncountries INNER JOIN movies_productioncountries ON (productioncountries.iso_639_1 = movies_productioncountries.productioncountry_iso) WHERE movies_productioncountries.movie_id = {movie_id}""")
+    production_companies = Productioncompanies.objects.raw(f"""SELECT * FROM productioncompanies INNER JOIN movies_productioncompanies ON (productioncompanies.productioncompanyid = movies_productioncompanies.productioncompanies_id) WHERE movies_productioncompanies.movie_id = {movie_id}""")
+    casts = Casts.objects.raw(f"""SELECT * FROM casts WHERE casts.movie_id = {movie_id}""")
     return render(request, 'movie_app/movie_details.html',
                   {'movie': movie_obj, 'genres': genres, 'production_countries': production_countries,
                    'production_companies': production_companies, 'casts': casts})

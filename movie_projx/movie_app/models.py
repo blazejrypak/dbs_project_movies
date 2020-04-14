@@ -80,7 +80,7 @@ class Movies(models.Model):
     homepage = models.CharField(max_length=1000, blank=True, null=True)
     movieid = models.AutoField(primary_key=True)
     imdb_id = models.CharField(max_length=20, blank=True, null=True)
-    original_language = models.CharField(max_length=2)
+    original_language = models.CharField(max_length=2, blank=True, null=True)
     original_title = models.CharField(max_length=500)
     overview = models.TextField(blank=True, null=True)
     popularity = models.FloatField(blank=True, null=True)
