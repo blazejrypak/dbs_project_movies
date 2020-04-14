@@ -16,11 +16,11 @@ class UserProfileInfo(models.Model):
 
 
 class Casts(models.Model):
-    castid = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     character = models.CharField(max_length=200)
     credit_id = models.CharField(max_length=250, blank=True, null=True)
     gender = models.IntegerField()
-    movie = models.ForeignKey('Movies', on_delete=models.CASCADE)
+    movie = models.ForeignKey('Movies', models.DO_NOTHING)
     name = models.CharField(max_length=200)
     order = models.IntegerField()
     profile_path = models.CharField(max_length=500, blank=True, null=True)
@@ -31,9 +31,7 @@ class Casts(models.Model):
         return self.name
 
     class Meta:
-        managed = False
         db_table = 'casts'
-
 
 class Genres(models.Model):
     genreid = models.AutoField(primary_key=True)
@@ -45,7 +43,6 @@ class Genres(models.Model):
         return self.name
 
     class Meta:
-        managed = False
         db_table = 'genres'
 
 
@@ -59,19 +56,20 @@ class Languages(models.Model):
         return self.name
 
     class Meta:
-        managed = False
         db_table = 'languages'
 
-
 class MovieRatings(models.Model):
-    userid = models.ForeignKey(User, on_delete=models.CASCADE, db_column='userid', blank=True, null=True)
-    movieid = models.ForeignKey('Movies', on_delete=models.CASCADE, db_column='movieid', blank=True, null=True)
+    id = models.AutoField(primary_key=True)
+    userid = models.ForeignKey(User, models.DO_NOTHING, db_column='userid', blank=True, null=True)
+    movieid = models.ForeignKey('Movies', models.DO_NOTHING, db_column='movieid', blank=True, null=True)
     rating = models.FloatField()
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 
+    def __str__(self):
+        return self.rating
+
     class Meta:
-        managed = False
         db_table = 'movie_ratings'
 
 
@@ -81,7 +79,7 @@ class Movies(models.Model):
     homepage = models.CharField(max_length=1000, blank=True, null=True)
     movieid = models.AutoField(primary_key=True)
     imdb_id = models.CharField(max_length=20, blank=True, null=True)
-    original_language = models.CharField(max_length=5)
+    original_language = models.CharField(max_length=2)
     original_title = models.CharField(max_length=500)
     overview = models.TextField(blank=True, null=True)
     popularity = models.FloatField(blank=True, null=True)
@@ -98,44 +96,46 @@ class Movies(models.Model):
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 
+    def __str__(self):
+        return self.title
+
     class Meta:
-        managed = False
         db_table = 'movies'
 
 
 class MoviesGenres(models.Model):
-    genre = models.ForeignKey(Genres, on_delete=models.CASCADE)
-    movie = models.ForeignKey(Movies, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    genre = models.ForeignKey(Genres, models.DO_NOTHING)
+    movie = models.ForeignKey(Movies, models.DO_NOTHING)
 
     class Meta:
-        managed = False
         db_table = 'movies_genres'
 
 
 class MoviesLanguages(models.Model):
-    movie = models.ForeignKey(Movies, on_delete=models.CASCADE)
-    language = models.ForeignKey(Languages, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    movie = models.ForeignKey(Movies, models.DO_NOTHING)
+    language = models.ForeignKey(Languages, models.DO_NOTHING)
 
     class Meta:
-        managed = False
         db_table = 'movies_languages'
 
 
 class MoviesProductioncompanies(models.Model):
-    movie = models.ForeignKey(Movies, on_delete=models.CASCADE)
-    productioncompanies = models.ForeignKey('Productioncompanies', on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    movie = models.ForeignKey(Movies, models.DO_NOTHING)
+    productioncompanies = models.ForeignKey('Productioncompanies', models.DO_NOTHING)
 
     class Meta:
-        managed = False
         db_table = 'movies_productioncompanies'
 
 
 class MoviesProductioncountries(models.Model):
-    movie = models.ForeignKey(Movies, on_delete=models.CASCADE)
-    productioncountry_iso = models.ForeignKey('Productioncountries', on_delete=models.CASCADE, db_column='productioncountry_iso')
+    id = models.AutoField(primary_key=True)
+    movie = models.ForeignKey(Movies, models.DO_NOTHING)
+    productioncountry_iso = models.ForeignKey('Productioncountries', models.DO_NOTHING, db_column='productioncountry_iso')
 
     class Meta:
-        managed = False
         db_table = 'movies_productioncountries'
 
 
@@ -149,7 +149,6 @@ class Productioncompanies(models.Model):
         return self.name
 
     class Meta:
-        managed = False
         db_table = 'productioncompanies'
 
 
@@ -163,5 +162,4 @@ class Productioncountries(models.Model):
         return self.name
 
     class Meta:
-        managed = False
         db_table = 'productioncountries'

@@ -31,6 +31,7 @@ You can find docs at [wiki](https://github.com/FIIT-DBS2020/project-mikulas_rypa
 cd movie_projx
 python manage.py makemigrations
 python manage.py migrate
+python manage.py sqlsequencereset movie_app // reset sequences in the database
 python manage.py runserver
 ```
 ## Support

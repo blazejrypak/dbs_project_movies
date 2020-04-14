@@ -39,7 +39,8 @@ def index(request):
     if request.user.id is not None:
         print(request.user.id)
         row = get_row(f"""SELECT profile_pic FROM movie_app_userprofileinfo WHERE user_id={request.user.id}""")
-        return render(request, 'movie_app/index.html', {'avatar_url': settings.MEDIA_URL + 'profile_pics/' + row[0]})
+        # return render(request, 'movie_app/index.html', {'avatar_url':  settings.MEDIA_URL + 'profile_pics/' + row[0]})
+        return render(request, 'movie_app/index.html')
     return render(request, 'movie_app/index.html')
 
 
