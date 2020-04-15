@@ -193,9 +193,9 @@ def search_results(request):
     elif sort_val == 'pop_asc':
         sort_query = 'ORDER BY popularity ASC'
     elif sort_val == 'rel_new':
-        sort_query = 'ORDER BY release_date DESC'
+        sort_query = 'AND release_date IS NOT NULL ORDER BY release_date DESC'
     elif sort_val == 'rel_old':
-        sort_query = 'ORDER BY release_date ASC'
+        sort_query = 'AND release_date IS NOT NULL ORDER BY release_date ASC'
     elif sort_val == 'rev_desc':
         sort_query = 'ORDER BY vote_count DESC'
     elif sort_val == 'rev_asc':
@@ -226,7 +226,8 @@ def search_results(request):
                 movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM movies WHERE movieid IN(SELECT movie_id FROM Movies_Languages WHERE language_id=%s) ''' + sort_query + ''' LIMIT 15''', [str(lang_iso_639_1)])
 
             else:
-                 movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM movies ''' + sort_query + ''' LIMIT 15''')
+                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM movies WHERE TRUE ''' + sort_query + ''' LIMIT 15''')
+
 
     genres = Genres.objects.all()
     languages = Languages.objects.all()
