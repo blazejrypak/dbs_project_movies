@@ -2,6 +2,7 @@
 {% load static %}
 {% block body_block %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/css/flag-icon.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <!-- Page Content -->
     <div class="container">
 
@@ -11,6 +12,19 @@
         {% if movie.tagline %}
             <h3 class="badge-info">{{ movie.tagline }}</h3>
         {% endif %}
+        <div class="progress" style="height: 30px">
+            <div class="progress-bar bg-dark" role="progressbar" style="width: {% widthratio rating_bar.one rating_bar.sum 100 %}%" aria-valuenow="{{ rating_bar.one }}" aria-valuemin="0"
+                 aria-valuemax="{{ rating_bar.sum }}"><span class="fa fa-star"></span></div>
+            <div class="progress-bar bg-info" role="progressbar" style="width: {% widthratio rating_bar.two rating_bar.sum 100 %}%" aria-valuenow="{{ rating_bar.two }}" aria-valuemin="0"
+                 aria-valuemax="{{ rating_bar.sum }}"><span class="fa fa-star"><span class="fa fa-star"></span></span></div>
+            <div class="progress-bar bg-warning" role="progressbar" style="width: {% widthratio rating_bar.three rating_bar.sum 100 %}%" aria-valuenow="{{ rating_bar.three }}"
+                 aria-valuemin="0" aria-valuemax="{{ rating_bar.sum }}"><span class="fa fa-star"><span class="fa fa-star"><span class="fa fa-star"></span></span></span></div>
+            <div class="progress-bar bg-success" role="progressbar" style="width: {% widthratio rating_bar.four rating_bar.sum 100 %}%" aria-valuenow="{{ rating_bar.four }}"
+                 aria-valuemin="0" aria-valuemax="{{ rating_bar.sum }}"><span class="fa fa-star"><span class="fa fa-star"><span class="fa fa-star"><span class="fa fa-star"></span></span></span></span></div>
+            <div class="progress-bar bg-danger" role="progressbar" style="width: {% widthratio rating_bar.five rating_bar.sum 100 %}%" aria-valuenow="{{ rating_bar.five }}"
+                 aria-valuemin="0" aria-valuemax="{{ rating_bar.sum }}"><span class="fa fa-star"><span class="fa fa-star"><span class="fa fa-star"><span class="fa fa-star"><span class="fa fa-star"></span></span></span></span></span></div>
+        </div>
+        <br>
 
         <!-- Portfolio Item Row -->
         <div class="row">
@@ -29,7 +43,7 @@
             <div class="col-md-5">
                 {% if movie.popularity %}
                     <h2><span class="badge badge-warning">IMDB {{ movie.vote_average }} / 10</span></h2>
-            {% endif %}
+                {% endif %}
                 <h3 class="my-3 badge-success">{{ movie.title }}</h3>
                 {% if movie.languages %}
                     <h3 class="my-3">
@@ -62,7 +76,7 @@
                         {% endfor %}
                     </h7>
                 {% endif %}
-            <br>
+                <br>
                 {% if production_companies %}
                     <h7 class="my-3">
                         {% for production_company in production_companies %}
@@ -80,10 +94,10 @@
                         {% for cast in casts %}
                             {% if forloop.last %}
                                 <a href="#">{{ cast.name }}
-                            </a>
+                                </a>
                             {% else %}
-                            <a href="#">{{ cast.name }}
-                            </a>,
+                                <a href="#">{{ cast.name }}
+                                </a>,
                             {% endif %}
                         {% endfor %}
                     </p>

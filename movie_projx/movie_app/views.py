@@ -164,9 +164,17 @@ def movie_details(request, movie_id):
     production_countries = Productioncountries.objects.raw(f"""SELECT * FROM productioncountries INNER JOIN movies_productioncountries ON (productioncountries.iso_639_1 = movies_productioncountries.productioncountry_iso) WHERE movies_productioncountries.movie_id = {movie_id}""")
     production_companies = Productioncompanies.objects.raw(f"""SELECT * FROM productioncompanies INNER JOIN movies_productioncompanies ON (productioncompanies.productioncompanyid = movies_productioncompanies.productioncompanies_id) WHERE movies_productioncompanies.movie_id = {movie_id}""")
     casts = Casts.objects.raw(f"""SELECT * FROM casts WHERE casts.movie_id = {movie_id}""")
+    rating_bar = {
+        'one': get_row(f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating <= 1) AS derTable''')[0],
+        'two': get_row(f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating > 1 AND rating <= 2) AS derTable''')[0],
+        'three': get_row(f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating > 2 AND rating <= 3) AS derTable''')[0],
+        'four': get_row(f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating > 3 AND rating <= 4) AS derTable''')[0],
+        'five': get_row(f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating > 4) AS derTable''')[0],
+        'sum': get_row(f'''SELECT COUNT(rating) FROM Movie_Ratings WHERE movieID = {movie_id}''')[0]
+    }
     return render(request, 'movie_app/movie_details.html',
                   {'movie': movie_obj, 'genres': genres, 'production_countries': production_countries,
-                   'production_companies': production_companies, 'casts': casts})
+                   'production_companies': production_companies, 'casts': casts, 'rating_bar': rating_bar})
 
 
 class SearchResultsView(generic.ListView):
