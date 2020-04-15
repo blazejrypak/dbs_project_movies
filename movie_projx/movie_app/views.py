@@ -147,7 +147,15 @@ def list_movies(request):
 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    return render(request, 'movie_app/movies.html', {'page_obj': page_obj, 'genres': genres, 'languages': languages})
+    sort_types = [{"name": "Popularity (most to least)", "id": "pop_desc"},
+                  {"name": "Popularity (least to most)", "id": "pop_asc"},
+                  {"name": "Release date (newest to oldest)", "id": "rel_new"},
+                  {"name": "Release date (oldest to newest)", "id": "rel_old"},
+                  {"name": "Reviews (most to least)", "id": "row_desc"},
+                  {"name": "Reviews (least to most)", "id": "row_asc"}]
+
+    return render(request, 'movie_app/movies.html',
+                  {'page_obj': page_obj, 'genres': genres, 'languages': languages, 'sort_types': sort_types})
 
 
 def movie_details(request, movie_id):
@@ -183,36 +191,61 @@ def is_checked(checkbox_value):
 def search_results(request):
     movie_list = None
     query = request.GET.get('q')
-    movie_list = Movies.objects.filter(title__icontains=query)[:15]
     adult = request.GET.get('adult')
-    popular = request.GET.get('popular')
-    new_movie = request.GET.get('new_movie')
+    sort_val = request.GET.get('sort_val')
+    sort_query = ''
     genre_id = request.GET.get('genre_id')
     lang_iso_639_1 = request.GET.get('lang_iso_639_1')
-    range_min = 0.0
-    range_max = 5.0
-    date_year = 1800
-    # if is_checked(new_movie):
-    #     date_year = datetime.year-1
-    if is_checked(popular):
-        range_min = 4.0
-    if genre_id and lang_iso_639_1:
-        movie_list = Movies.objects.filter(title__icontains=query, adult=is_checked(adult),
-                                           movieratings__rating__range=(range_min, range_max),
-                                           release_date__gte=datetime.date(date_year, 1, 1),
-                                           movieslanguages__language=lang_iso_639_1,
-                                           moviesgenres__genre=genre_id)[:15]
 
-    elif genre_id:
-        movie_list = Movies.objects.filter(title__icontains=query, adult=is_checked(adult),
-                                           movieratings__rating__range=(range_min, range_max),
-                                           release_date__gte=datetime.date(date_year, 1, 1),
-                                           moviesgenres__genre=genre_id)[:15]
-    elif lang_iso_639_1:
-        movie_list = Movies.objects.filter(title__icontains=query, adult=is_checked(adult),
-                                           movieratings__rating__range=(range_min, range_max),
-                                           release_date__gte=datetime.date(date_year, 1, 1),
-                                           movieslanguages__language=lang_iso_639_1)[:15]
+    if sort_val == 'pop_desc':
+        sort_query = 'ORDER BY popularity DESC'
+    elif sort_val == 'pop_asc':
+        sort_query = 'ORDER BY popularity ASC'
+    elif sort_val == 'rel_new':
+        sort_query = 'AND release_date IS NOT NULL ORDER BY release_date DESC'
+    elif sort_val == 'rel_old':
+        sort_query = 'AND release_date IS NOT NULL ORDER BY release_date ASC'
+    elif sort_val == 'rev_desc':
+        sort_query = 'ORDER BY vote_count DESC'
+    elif sort_val == 'rev_asc':
+        sort_query = 'ORDER BY vote_count ASC'
+
+    if is_checked(adult):
+        if genre_id:
+            if lang_iso_639_1:
+                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM "movies" INNER JOIN "movies_genres" ON ("movies"."movieid" = "movies_genres"."movie_id") INNER JOIN "movies_languages" ON ("movies"."movieid" = "movies_languages"."movie_id") WHERE ("movies"."adult" = true AND "movies_genres"."genre_id" = %s AND "movies_languages"."language_id" =%s AND UPPER("movies"."title"::text) LIKE UPPER('%%')) ''' + sort_query + ''' LIMIT 15''', [str(genre_id), str(lang_iso_639_1)])
+            else:
+                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM movies WHERE movieid IN(SELECT movie_id FROM Movies_Genres WHERE genre_id=%s) AND adult='true' ''' + sort_query + ''' LIMIT 15''',[str(genre_id)])
+
+        else:
+            if lang_iso_639_1:
+                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM movies WHERE movieid IN(SELECT movie_id FROM Movies_Languages WHERE language_id=%s) AND adult='true' ''' + sort_query + ''' LIMIT 15''',[str(lang_iso_639_1)])
+
+            else:
+                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM movies WHERE adult='true' ''' + sort_query + ''' LIMIT 15''')
+
+    else:
+        if genre_id:
+            if lang_iso_639_1:
+                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM "movies" INNER JOIN "movies_genres" ON ("movies"."movieid" = "movies_genres"."movie_id") INNER JOIN "movies_languages" ON ("movies"."movieid" = "movies_languages"."movie_id") WHERE ("movies_genres"."genre_id" = %s AND "movies_languages"."language_id" =%s AND UPPER("movies"."title"::text) LIKE UPPER('%%')) ''' + sort_query + ''' LIMIT 15''', [str(genre_id), str(lang_iso_639_1)])
+            else:
+                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM movies WHERE movieid IN(SELECT movie_id FROM Movies_Genres WHERE genre_id=%s) ''' + sort_query + ''' LIMIT 15''', [str(genre_id)])
+        else:
+            if lang_iso_639_1:
+                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM movies WHERE movieid IN(SELECT movie_id FROM Movies_Languages WHERE language_id=%s) ''' + sort_query + ''' LIMIT 15''', [str(lang_iso_639_1)])
+
+            else:
+                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM movies WHERE TRUE ''' + sort_query + ''' LIMIT 15''')
+
+
     genres = Genres.objects.all()
     languages = Languages.objects.all()
-    return render(request, 'movie_app/movies.html', {'page_obj': movie_list, 'genres': genres, 'languages': languages})
+    sort_types = [{"name": "Popularity (most to least)", "id": "pop_desc"},
+                  {"name": "Popularity (least to most)", "id": "pop_asc"},
+                  {"name": "Release date (newest to oldest)", "id": "rel_new"},
+                  {"name": "Release date (oldest to newest)", "id": "rel_old"},
+                  {"name": "Reviews (most to least)", "id": "rev_desc"},
+                  {"name": "Reviews (least to most)", "id": "rev_asc"}]
+
+    return render(request, 'movie_app/movies.html',
+                  {'page_obj': movie_list, 'genres': genres, 'languages': languages, 'sort_types': sort_types})

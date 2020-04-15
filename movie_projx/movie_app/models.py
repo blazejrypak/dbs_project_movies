@@ -34,6 +34,7 @@ class Casts(models.Model):
     class Meta:
         db_table = 'casts'
 
+
 class Genres(models.Model):
     genreid = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
@@ -58,6 +59,7 @@ class Languages(models.Model):
 
     class Meta:
         db_table = 'languages'
+
 
 class MovieRatings(models.Model):
     id = models.AutoField(primary_key=True)
