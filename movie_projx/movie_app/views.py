@@ -198,7 +198,7 @@ def is_checked(checkbox_value):
 
 def search_results(request):
     movie_list = None
-    query = request.GET.get('q')
+    search_bar = request.GET.get('q')
     adult = request.GET.get('adult')
     sort_val = request.GET.get('sort_val')
     sort_query = ''
@@ -218,32 +218,37 @@ def search_results(request):
     elif sort_val == 'rev_asc':
         sort_query = 'ORDER BY vote_count ASC'
 
+    if search_bar:
+        search_bar_query = " AND title ~ '" + str(search_bar) + "'"
+    else:
+        search_bar_query = ''
+
     if is_checked(adult):
         if genre_id:
             if lang_iso_639_1:
-                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM "movies" INNER JOIN "movies_genres" ON ("movies"."movieid" = "movies_genres"."movie_id") INNER JOIN "movies_languages" ON ("movies"."movieid" = "movies_languages"."movie_id") WHERE ("movies"."adult" = true AND "movies_genres"."genre_id" = %s AND "movies_languages"."language_id" =%s AND UPPER("movies"."title"::text) LIKE UPPER('%%')) ''' + sort_query + ''' LIMIT 15''', [str(genre_id), str(lang_iso_639_1)])
+                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM "movies" INNER JOIN "movies_genres" ON ("movies"."movieid" = "movies_genres"."movie_id") INNER JOIN "movies_languages" ON ("movies"."movieid" = "movies_languages"."movie_id") WHERE ("movies"."adult" = true AND "movies_genres"."genre_id" = %s AND "movies_languages"."language_id" =%s AND UPPER("movies"."title"::text) LIKE UPPER('%%')) ''' + search_bar_query + sort_query + ''' LIMIT 15''', [str(genre_id), str(lang_iso_639_1)])
             else:
-                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM movies WHERE movieid IN(SELECT movie_id FROM Movies_Genres WHERE genre_id=%s) AND adult='true' ''' + sort_query + ''' LIMIT 15''',[str(genre_id)])
+                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM movies WHERE movieid IN(SELECT movie_id FROM Movies_Genres WHERE genre_id=%s) AND adult='true' ''' + search_bar_query + sort_query + ''' LIMIT 15''',[str(genre_id)])
 
         else:
             if lang_iso_639_1:
-                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM movies WHERE movieid IN(SELECT movie_id FROM Movies_Languages WHERE language_id=%s) AND adult='true' ''' + sort_query + ''' LIMIT 15''',[str(lang_iso_639_1)])
+                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM movies WHERE movieid IN(SELECT movie_id FROM Movies_Languages WHERE language_id=%s) AND adult='true' ''' + search_bar_query + sort_query + ''' LIMIT 15''',[str(lang_iso_639_1)])
 
             else:
-                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM movies WHERE adult='true' ''' + sort_query + ''' LIMIT 15''')
+                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM movies WHERE adult='true' ''' + search_bar_query + sort_query + ''' LIMIT 15''')
 
     else:
         if genre_id:
             if lang_iso_639_1:
-                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM "movies" INNER JOIN "movies_genres" ON ("movies"."movieid" = "movies_genres"."movie_id") INNER JOIN "movies_languages" ON ("movies"."movieid" = "movies_languages"."movie_id") WHERE ("movies_genres"."genre_id" = %s AND "movies_languages"."language_id" =%s AND UPPER("movies"."title"::text) LIKE UPPER('%%')) ''' + sort_query + ''' LIMIT 15''', [str(genre_id), str(lang_iso_639_1)])
+                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM "movies" INNER JOIN "movies_genres" ON ("movies"."movieid" = "movies_genres"."movie_id") INNER JOIN "movies_languages" ON ("movies"."movieid" = "movies_languages"."movie_id") WHERE ("movies_genres"."genre_id" = %s AND "movies_languages"."language_id" =%s AND UPPER("movies"."title"::text) LIKE UPPER('%%')) ''' + search_bar_query + sort_query + ''' LIMIT 15''', [str(genre_id), str(lang_iso_639_1)])
             else:
-                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM movies WHERE movieid IN(SELECT movie_id FROM Movies_Genres WHERE genre_id=%s) ''' + sort_query + ''' LIMIT 15''', [str(genre_id)])
+                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM movies WHERE movieid IN(SELECT movie_id FROM Movies_Genres WHERE genre_id=%s) ''' + search_bar_query + sort_query + ''' LIMIT 15''', [str(genre_id)])
         else:
             if lang_iso_639_1:
-                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM movies WHERE movieid IN(SELECT movie_id FROM Movies_Languages WHERE language_id=%s) ''' + sort_query + ''' LIMIT 15''', [str(lang_iso_639_1)])
+                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM movies WHERE movieid IN(SELECT movie_id FROM Movies_Languages WHERE language_id=%s) ''' + search_bar_query + sort_query + ''' LIMIT 15''', [str(lang_iso_639_1)])
 
             else:
-                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM movies WHERE TRUE ''' + sort_query + ''' LIMIT 15''')
+                movie_list = Movies.objects.raw('''SELECT adult, budget, homepage, movieid, imdb_id, original_language, original_title, overview, popularity, poster_path, release_date, revenue, runtime, status, tagline, title, video, vote_average, vote_count, created_at, updated_at FROM movies WHERE TRUE ''' + search_bar_query + sort_query + ''' LIMIT 15''')
 
 
     genres = Genres.objects.all()
