@@ -1,0 +1,39 @@
+{% extends 'movie_app/dashboard_base.html' %}
+{% block body_block %}
+    <div class="container">
+        <hr>
+        <div class="row-fluid">
+            <div class="col-sm-6">
+                <div class="card">
+                    <h5 class="card-header">Review title</h5>
+                    <div class="card-body">
+                        <h5 class="card-title">Special title treatment</h5>
+                        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                        <small>
+                        <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+                                <span itemprop="name">-- J. Reviewer</span>
+                        </span>
+                            <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
+
+                            <meta itemprop="datePublished" content="01-01-2016">
+                            01-01-2016
+
+                            <span class="pull-right">
+                          <span class="reviewRating" itemscope itemtype="http://schema.org/Rating">
+                            <meta itemprop="worstRating" content="1">
+                              <span itemprop="ratingValue">5</span> /
+                            <span itemprop="bestRating"> stars </span>
+                          </span>
+                          <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                          <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                          <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                          <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                          <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                          </span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

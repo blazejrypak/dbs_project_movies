@@ -170,23 +170,32 @@ def movie_details(request, movie_id):
     production_companies = Productioncompanies.objects.raw(
         f"""SELECT * FROM productioncompanies INNER JOIN movies_productioncompanies ON (productioncompanies.productioncompanyid = movies_productioncompanies.productioncompanies_id) WHERE movies_productioncompanies.movie_id = {movie_id}""")
     casts = Casts.objects.raw(f"""SELECT * FROM casts WHERE casts.movie_id = {movie_id}""")
+    # rating_bar = {
+    #     'one': get_row(
+    #         f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating <= 1) AS derTable''')[
+    #         0],
+    #     'two': get_row(
+    #         f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating > 1 AND rating <= 2) AS derTable''')[
+    #         0],
+    #     'three': get_row(
+    #         f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating > 2 AND rating <= 3) AS derTable''')[
+    #         0],
+    #     'four': get_row(
+    #         f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating > 3 AND rating <= 4) AS derTable''')[
+    #         0],
+    #     'five': get_row(
+    #         f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating > 4) AS derTable''')[
+    #         0],
+    #     'sum': get_row(f'''SELECT COUNT(rating) FROM Movie_Ratings WHERE movieID = {movie_id}''')[0]
+    # }
+
     rating_bar = {
-        'one': get_row(
-            f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating <= 1) AS derTable''')[
-            0],
-        'two': get_row(
-            f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating > 1 AND rating <= 2) AS derTable''')[
-            0],
-        'three': get_row(
-            f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating > 2 AND rating <= 3) AS derTable''')[
-            0],
-        'four': get_row(
-            f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating > 3 AND rating <= 4) AS derTable''')[
-            0],
-        'five': get_row(
-            f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating > 4) AS derTable''')[
-            0],
-        'sum': get_row(f'''SELECT COUNT(rating) FROM Movie_Ratings WHERE movieID = {movie_id}''')[0]
+        'one': 10,
+        'two': 2,
+        'three': 6,
+        'four': 8,
+        'five': 15,
+        'sum': 41
     }
     return render(request, 'movie_app/movie_details.html',
                   {'movie': movie_obj, 'genres': genres, 'production_countries': production_countries,
@@ -295,6 +304,10 @@ def search_results(request):
 
 def dashboard(request):
     return render(request, 'movie_app/dashboard_base.html')
+
+
+def dashboard_reviews(request):
+    return render(request, 'movie_app/dashboard_reviews.html')
 
 
 def dashboard_settings(request):

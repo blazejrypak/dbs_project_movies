@@ -3,6 +3,7 @@
 {% block body_block %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/css/flag-icon.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+{#    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.1.0-4/js/all.js"></script>#}
     <!-- Page Content -->
     <div class="container">
 
@@ -13,16 +14,32 @@
             <h3 class="badge-info">{{ movie.tagline }}</h3>
         {% endif %}
         <div class="progress" style="height: 30px">
-            <div class="progress-bar bg-dark" role="progressbar" style="width: {% widthratio rating_bar.one rating_bar.sum 100 %}%" aria-valuenow="{{ rating_bar.one }}" aria-valuemin="0"
+            <div class="progress-bar bg-dark" role="progressbar"
+                 style="width: {% widthratio rating_bar.one rating_bar.sum 100 %}%" aria-valuenow="{{ rating_bar.one }}"
+                 aria-valuemin="0"
                  aria-valuemax="{{ rating_bar.sum }}"><span class="fa fa-star"></span></div>
-            <div class="progress-bar bg-info" role="progressbar" style="width: {% widthratio rating_bar.two rating_bar.sum 100 %}%" aria-valuenow="{{ rating_bar.two }}" aria-valuemin="0"
-                 aria-valuemax="{{ rating_bar.sum }}"><span class="fa fa-star"><span class="fa fa-star"></span></span></div>
-            <div class="progress-bar bg-warning" role="progressbar" style="width: {% widthratio rating_bar.three rating_bar.sum 100 %}%" aria-valuenow="{{ rating_bar.three }}"
-                 aria-valuemin="0" aria-valuemax="{{ rating_bar.sum }}"><span class="fa fa-star"><span class="fa fa-star"><span class="fa fa-star"></span></span></span></div>
-            <div class="progress-bar bg-success" role="progressbar" style="width: {% widthratio rating_bar.four rating_bar.sum 100 %}%" aria-valuenow="{{ rating_bar.four }}"
-                 aria-valuemin="0" aria-valuemax="{{ rating_bar.sum }}"><span class="fa fa-star"><span class="fa fa-star"><span class="fa fa-star"><span class="fa fa-star"></span></span></span></span></div>
-            <div class="progress-bar bg-danger" role="progressbar" style="width: {% widthratio rating_bar.five rating_bar.sum 100 %}%" aria-valuenow="{{ rating_bar.five }}"
-                 aria-valuemin="0" aria-valuemax="{{ rating_bar.sum }}"><span class="fa fa-star"><span class="fa fa-star"><span class="fa fa-star"><span class="fa fa-star"><span class="fa fa-star"></span></span></span></span></span></div>
+            <div class="progress-bar bg-info" role="progressbar"
+                 style="width: {% widthratio rating_bar.two rating_bar.sum 100 %}%" aria-valuenow="{{ rating_bar.two }}"
+                 aria-valuemin="0"
+                 aria-valuemax="{{ rating_bar.sum }}"><span class="fa fa-star"><span class="fa fa-star"></span></span>
+            </div>
+            <div class="progress-bar bg-warning" role="progressbar"
+                 style="width: {% widthratio rating_bar.three rating_bar.sum 100 %}%"
+                 aria-valuenow="{{ rating_bar.three }}"
+                 aria-valuemin="0" aria-valuemax="{{ rating_bar.sum }}"><span class="fa fa-star"><span
+                    class="fa fa-star"><span class="fa fa-star"></span></span></span></div>
+            <div class="progress-bar bg-success" role="progressbar"
+                 style="width: {% widthratio rating_bar.four rating_bar.sum 100 %}%"
+                 aria-valuenow="{{ rating_bar.four }}"
+                 aria-valuemin="0" aria-valuemax="{{ rating_bar.sum }}"><span class="fa fa-star"><span
+                    class="fa fa-star"><span class="fa fa-star"><span class="fa fa-star"></span></span></span></span>
+            </div>
+            <div class="progress-bar bg-danger" role="progressbar"
+                 style="width: {% widthratio rating_bar.five rating_bar.sum 100 %}%"
+                 aria-valuenow="{{ rating_bar.five }}"
+                 aria-valuemin="0" aria-valuemax="{{ rating_bar.sum }}"><span class="fa fa-star"><span
+                    class="fa fa-star"><span class="fa fa-star"><span class="fa fa-star"><span
+                    class="fa fa-star"></span></span></span></span></span></div>
         </div>
         <br>
 
@@ -107,9 +124,58 @@
                     <li>Runtime: {{ movie.runtime }}</li>
                 </ul>
             </div>
-
+            <p>{{ movie.overview }}</p>
         </div>
-        <!-- /.row -->
-        <p>{{ movie.overview }}</p>
-        <!-- /.container -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card form-group">
+                    <span class="card-header">
+                    <input class="form-control" placeholder="Enter title" id="title">
+                    </span>
+                    <div class="card-body">
+                        <textarea class="form-control animated card-text" cols="50" id="new-review" name="comment"
+                                  placeholder="Enter your review here..." rows="4"></textarea>
+                        <br>
+                        <span class="pull-right">
+                                <a class="float-right btn btn-success"> <i
+                                        class="glyphicon glyphicon-send"></i>  Send</a>
+                          </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <h5 class="card-header">Review title</h5>
+                    <div class="card-body">
+                        <div class="col-md-2">
+                            <img src="https://image.ibb.co/jw55Ex/def_face.jpg"
+                                 class="img img-rounded img-fluid max-width: 25%"/>
+                            <p class="text-secondary text-center">15 Minutes Ago</p>
+                        </div>
+                        <div class="col-md-10">
+                            <h4 class="card-text">With supporting text below as a natural lead-in to additional
+                                content.</h4>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <h5>
+                                <span itemprop="name">-- J. Reviewer</span>
+                                <i class="far fa-calendar-alt"></i>
+                                <span>
+                                     01-01-2016
+                                </span>
+                                <span class="pull-right">
+                              <i class="fa fa-star"></i>
+                              <i class="fa fa-star"></i>
+                              <i class="fa fa-star"></i>
+                              <i class="fa fa-star"></i>
+                              <i class="fa fa-star"></i>
+                          </span>
+                            </h5>
+                    </div>
+                </div>
+            </div>
+        </div>
 {% endblock %}
