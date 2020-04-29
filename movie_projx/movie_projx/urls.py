@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import url, include
 from movie_app import views
+from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,5 +27,7 @@ urlpatterns = [
     url(r'^register/$', views.register, name='register'),
     url(r'^user_login/$', views.user_login, name='user_login'),
     url(r'^logout/$', views.user_logout, name='logout'),
+    url(r'^dashboard/$', views.dashboard, name='dashboard_base'),
+    url(r'^dashboard/account/settings$', login_required(views.dashboard_settings), name='dashboard_account_settings'),
 ]
 

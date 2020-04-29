@@ -16,6 +16,9 @@ from .forms import UserForm, UserProfileInfoForm
 from .models import Movies, Genres, Languages, MoviesGenres, Productioncountries, Productioncompanies, Casts, \
     MovieRatings
 
+from django.forms.models import model_to_dict
+
+from django.contrib.auth.models import User
 
 def get_row(sql):
     with connection.cursor() as cursor:
@@ -46,7 +49,7 @@ def gen_add_user_sql(_username, _email, _password):
 def index(request):
     if request.user.id is not None:
         print(request.user.id)
-        row = get_row(f"""SELECT profile_pic FROM movie_app_userprofileinfo WHERE user_id={request.user.id}""")
+        # row = get_row(f"""-- SELECT profile_pic FROM movie_app_userprofileinfo WHERE user_id={request.user.id}""")
         # return render(request, 'movie_app/index.html', {'avatar_url':  settings.MEDIA_URL + 'profile_pics/' + row[0]})
         return render(request, 'movie_app/index.html')
     return render(request, 'movie_app/index.html')
@@ -95,9 +98,9 @@ def register(request):
                     dest_path = '/movie_projx' + settings.MEDIA_URL + 'profile_pics/' + str(
                         f'{timestamp_str}_' + str(profile_pic_path))
                     handle_uploaded_file(request.FILES['profile_pic'], dest_path)
-                cur.execute(f"""
-                                    INSERT INTO movie_app_userprofileinfo(profile_pic, user_id) SELECT '{profile_pic_path}', {user_id};
-                                """)
+                    cur.execute(f"""
+                                        INSERT INTO movie(profile_pic, user_id) SELECT '{profile_pic_path}', {user_id};
+                                    """)
                 connection.commit()
                 cur.close()
             registered = True
@@ -288,3 +291,27 @@ def search_results(request):
 
     return render(request, 'movie_app/movies.html',
                   {'page_obj': movie_list, 'genres': genres, 'languages': languages, 'sort_types': sort_types})
+
+
+def dashboard(request):
+    return render(request, 'movie_app/dashboard_base.html')
+
+
+def dashboard_settings(request):
+    if request.method == 'POST':
+        user_form = UserForm(data=request.POST)
+        profile_form = UserProfileInfoForm(data=request.POST)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+        else:
+            print(user_form.errors, profile_form.errors)
+    else:
+        user_form = UserForm(initial=model_to_dict(request.user))
+        profile_form = UserProfileInfoForm()
+    return render(request, 'movie_app/dashboard_account_settings.html',
+                  {'user_form': user_form,
+                   'profile_form': profile_form
+                   })
+
+
