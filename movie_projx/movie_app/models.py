@@ -60,20 +60,32 @@ class Languages(models.Model):
     class Meta:
         db_table = 'languages'
 
-
 class MovieRatings(models.Model):
     id = models.AutoField(primary_key=True)
     userid = models.ForeignKey(User, models.DO_NOTHING, db_column='userid', blank=True, null=True)
     movieid = models.ForeignKey('Movies', models.DO_NOTHING, db_column='movieid', blank=True, null=True)
-    rating = models.FloatField()
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
+    rating = models.FloatField()
+    title = models.CharField(max_length=70, blank=False, null=True)
+    description = models.CharField(max_length=500, blank=False, null=True)
+    up_votes = models.IntegerField(default=0)
+    down_votes = models.IntegerField(default=0)
 
     def __str__(self):
         return self.rating
 
     class Meta:
         db_table = 'movie_ratings'
+
+class MovieRatingsVotes(models.Model):
+    id = models.AutoField(primary_key=True)
+    userid = models.ForeignKey(User, models.DO_NOTHING, db_column='userid', blank=False, null=False)
+    movie_rating_id = models.ForeignKey('MovieRatings', models.DO_NOTHING, db_column='movieratingid', blank=False, null=False)
+    vote = models.BooleanField(null=False)
+
+    class Meta:
+        db_table = 'movie_ratings_votes'
 
 
 class Movies(models.Model):
