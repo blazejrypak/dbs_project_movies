@@ -10,11 +10,11 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.views import generic
+from django.utils import timezone
 
 from movie_projx import settings
-from .forms import UserForm, UserProfileInfoForm
-from .models import Movies, Genres, Languages, MoviesGenres, Productioncountries, Productioncompanies, Casts, \
-    MovieRatings
+from .forms import UserForm, UserProfileInfoForm, MovieRatingsForm
+from .models import Movies, Genres, Languages, MoviesGenres, Productioncountries, Productioncompanies, Casts, MovieRatings
 
 from django.forms.models import model_to_dict
 
@@ -169,25 +169,7 @@ def movie_details(request, movie_id):
         f"""SELECT * FROM productioncountries INNER JOIN movies_productioncountries ON (productioncountries.iso_639_1 = movies_productioncountries.productioncountry_iso) WHERE movies_productioncountries.movie_id = {movie_id}""")
     production_companies = Productioncompanies.objects.raw(
         f"""SELECT * FROM productioncompanies INNER JOIN movies_productioncompanies ON (productioncompanies.productioncompanyid = movies_productioncompanies.productioncompanies_id) WHERE movies_productioncompanies.movie_id = {movie_id}""")
-    casts = Casts.objects.raw(f"""SELECT * FROM casts WHERE casts.movie_id = {movie_id}""")
-    # rating_bar = {
-    #     'one': get_row(
-    #         f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating <= 1) AS derTable''')[
-    #         0],
-    #     'two': get_row(
-    #         f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating > 1 AND rating <= 2) AS derTable''')[
-    #         0],
-    #     'three': get_row(
-    #         f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating > 2 AND rating <= 3) AS derTable''')[
-    #         0],
-    #     'four': get_row(
-    #         f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating > 3 AND rating <= 4) AS derTable''')[
-    #         0],
-    #     'five': get_row(
-    #         f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating > 4) AS derTable''')[
-    #         0],
-    #     'sum': get_row(f'''SELECT COUNT(rating) FROM Movie_Ratings WHERE movieID = {movie_id}''')[0]
-    # }
+    casts = Casts.objects.raw(f"""SELECT 1 as castID,* FROM casts WHERE casts.movie_id = {movie_id}""")
 
     rating_bar = {
         'one': 10,
@@ -197,9 +179,26 @@ def movie_details(request, movie_id):
         'five': 15,
         'sum': 41
     }
+
+    if request.method == 'POST':
+        rating_form = MovieRatingsForm(request.POST)
+        if rating_form.is_valid():
+
+
+            new_rating = MovieRatings.objects.create(title= rating_form.cleaned_data['title'], description= rating_form.cleaned_data['description'],rating=rating_form.cleaned_data['rating'], movieid=movie_obj, userid=request.user, created_at=timezone.now(), updated_at=timezone.now())
+            new_rating.save()
+            return HttpResponseRedirect(reverse('movie_app:details', args=(movie_id,)))
+
+        else:
+            pass
+    else:
+        rating_form = MovieRatingsForm()
+
+
+
     return render(request, 'movie_app/movie_details.html',
                   {'movie': movie_obj, 'genres': genres, 'production_countries': production_countries,
-                   'production_companies': production_companies, 'casts': casts, 'rating_bar': rating_bar})
+                   'production_companies': production_companies, 'casts': casts, 'rating_bar': rating_bar, 'rating_form': rating_form})
 
 
 class SearchResultsView(generic.ListView):
@@ -326,5 +325,3 @@ def dashboard_settings(request):
                   {'user_form': user_form,
                    'profile_form': profile_form
                    })
-
-
