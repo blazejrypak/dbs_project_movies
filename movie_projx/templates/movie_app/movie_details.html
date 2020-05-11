@@ -159,37 +159,61 @@
                 </form>
             {% endif %}
         </div>
-        {% for rating in movie_ratings %}
+        {% for rating in ratings_page %}
             <div class="col-md-12">
                 <br>
 
                 <div class="card">
-                    <h5 class="card-header">{{ rating.title }} <span class="badge badge-warning"> {{ rating.rating }} / 5</span>
+                    <h5 class="card-header"> <span class="badge badge-warning"> {{ rating.rating }} / 5</span> {{ rating.title }} <br>
+                        <a href="volaky linkes"><i class="fa fa-thumbs-o-up"></i></a> {{ rating.up_votes }}
+                        <a href="volaky linkes"><i class="fa fa-thumbs-o-down"></i></a> {{ rating.down_votes }}
+
                     </h5>
 
                     <div class="card-body">
                         <div class="col-md-2">
                             <img src="https://image.ibb.co/jw55Ex/def_face.jpg"
                                  class="img img-rounded img-fluid max-width: 25%"/>
-                            <p class="text-secondary text-center">{{ rating.updated_at }}</p>
+                            <p class="text-secondary text-center"> <span itemprop="name"> {{ rating.userid }}</span></p>
                         </div>
                         <div class="col-md-10">
-                            <h4 class="card-text">{{ rating.description }}</h4>
+                            <h4 class="card-text">{{ rating.description }} </h4>
                         </div>
                     </div>
                     <div class="card-footer">
                         <h5>
-                            <span itemprop="name"> {{ rating.userid }}</span>
+                            <p class="text-secondary">
+                            <span>Last modification: {{ rating.updated_at }}</span>
                             <br>
                             <i class="far fa-calendar-alt"></i>
-                            <span>
-                                             {{ rating.created_at }}
-                                        </span>
+                            <span>Created at: {{ rating.created_at }}</span>
+                            </p>
                         </h5>
                     </div>
                 </div>
             </div>
 
         {% endfor %}
+            <div class="row" style="background-color: #1abc9c">
+            <div class="container">
+                <div class="pagination">
+                    <span class="step-links">
+                        {% if ratings_page.has_previous %}
+                            <a href="?page=1">&laquo; first</a>
+                            <a href="?page={{ ratings_page.previous_page_number }}">previous</a>
+                        {% endif %}
+
+                        <span class="current">
+                            Page {{ ratings_page.number }} of {{ ratings_page.paginator.num_pages }}.
+                        </span>
+
+                        {% if ratings_page.has_next %}
+                            <a href="?page={{ ratings_page.next_page_number }}">next</a>
+                            <a href="?page={{ ratings_page.paginator.num_pages }}">last &raquo;</a>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
