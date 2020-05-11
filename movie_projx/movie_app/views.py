@@ -171,6 +171,8 @@ def movie_details(request, movie_id):
         f"""SELECT * FROM productioncompanies INNER JOIN movies_productioncompanies ON (productioncompanies.productioncompanyid = movies_productioncompanies.productioncompanies_id) WHERE movies_productioncompanies.movie_id = {movie_id}""")
     casts = Casts.objects.raw(f"""SELECT 1 as castID,* FROM casts WHERE casts.movie_id = {movie_id}""")
 
+    movie_ratings = MovieRatings.objects.filter(movieid=movie_id)
+
     rating_bar = {
         'one': 10,
         'two': 2,
@@ -198,7 +200,8 @@ def movie_details(request, movie_id):
 
     return render(request, 'movie_app/movie_details.html',
                   {'movie': movie_obj, 'genres': genres, 'production_countries': production_countries,
-                   'production_companies': production_companies, 'casts': casts, 'rating_bar': rating_bar, 'rating_form': rating_form})
+                   'production_companies': production_companies, 'casts': casts, 'rating_bar': rating_bar,
+                   'rating_form': rating_form, 'movie_ratings': movie_ratings})
 
 
 class SearchResultsView(generic.ListView):
@@ -209,6 +212,14 @@ class SearchResultsView(generic.ListView):
         query = self.request.GET.get('q')
         object_list = Movies.objects.filter(Q(title__icontains=query))
         return object_list
+
+
+class RatingsView(generic.ListView):
+    model = MovieRatings
+    paginate_by = 1
+    context_object_name = 'ratings'
+    template_name = 'movie_app/movie_details.html'
+
 
 
 def is_checked(checkbox_value):
