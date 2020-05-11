@@ -5,37 +5,40 @@
         <br>
         <hr>
         <div class="row-fluid">
+            {% for rating in ratings_page %}
             <div class="col-sm-6">
                 <div class="card">
-                    <h5 class="card-header">Review title</h5>
+                    <h5 class="card-header">{{ rating.title }}</h5>
                     <div class="card-body">
-                        <h5 class="card-title">Special title treatment</h5>
-                        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                        <p class="card-text">{{ rating.description }}</p>
                         <small>
                         <span itemprop="author" itemscope itemtype="http://schema.org/Person">
-                                <span itemprop="name">-- J. Reviewer</span>
+                                <span itemprop="name">-- {{ rating.userid }}</span>
                         </span>
                             <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>
 
                             <meta itemprop="datePublished" content="01-01-2016">
-                            01-01-2016
+                            {{ rating.updated_at }}
 
                             <span class="pull-right">
-                          <span class="reviewRating" itemscope itemtype="http://schema.org/Rating">
-                            <meta itemprop="worstRating" content="1">
-                              <span itemprop="ratingValue">5</span> /
-                            <span itemprop="bestRating"> stars </span>
-                          </span>
-                          <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                          <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                          <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                          <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-                          <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                <span class="badge badge-warning"> {{ rating.rating }} / 5</span>
+                                <br>
+                                <span> <i class="fa fa-thumbs-o-up"></i> {{ rating.up_votes }}</span>
+                                <br>
+                                <span> <i class="fa fa-thumbs-o-down"></i> {{ rating.down_votes }}</span>
+                                <br>
+                                <a href="{% url 'dashboard_review_update' review_id=rating.id %}">
+                                <button class="btn btn-success">Update</button>
+                                </a>
+                                <a href="{% url 'dashboard_review_delete' review_id=rating.id %}">
+                                <button class="btn btn-danger">Delete</button>
+                                </a>
                           </span>
                         </small>
                     </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
     </div>
 {% endblock %}

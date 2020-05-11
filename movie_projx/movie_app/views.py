@@ -7,18 +7,20 @@ from django.core.paginator import Paginator
 from django.db import connection
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
 
 from movie_projx import settings
 from .forms import UserForm, UserProfileInfoForm, MovieRatingsForm
-from .models import Movies, Genres, Languages, MoviesGenres, Productioncountries, Productioncompanies, Casts, MovieRatings
+from .models import Movies, Genres, Languages, MoviesGenres, Productioncountries, Productioncompanies, Casts, \
+    MovieRatings, MovieRatingsVotes
 
 from django.forms.models import model_to_dict
 
 from django.contrib.auth.models import User
+
 
 def get_row(sql):
     with connection.cursor() as cursor:
@@ -205,6 +207,22 @@ def movie_details(request, movie_id):
                    'rating_form': rating_form, 'ratings_page': ratings_page})
 
 
+def movie_ratings_vote(request, rating_id, vote_value):
+    obj = MovieRatings.objects.get(id=rating_id)
+    if vote_value:
+        obj.up_votes = obj.up_votes + 1
+    elif not vote_value:
+        obj.down_votes = obj.down_votes + 1
+    obj.save()
+    p, created = MovieRatingsVotes.objects.get_or_create(movie_rating_id=obj, userid=request.user, vote=vote_value)
+    if not created:
+        p.userid = request.user
+        p.vote = vote_value
+        p.movie_rating_id = obj
+        p.save()
+    return redirect('movie_app:details', movie_id=obj.movieid.movieid)
+
+
 class SearchResultsView(generic.ListView):
     model = Movies
     template_name = 'movie_app/movies.html'
@@ -213,6 +231,7 @@ class SearchResultsView(generic.ListView):
         query = self.request.GET.get('q')
         object_list = Movies.objects.filter(Q(title__icontains=query))
         return object_list
+
 
 def is_checked(checkbox_value):
     if not checkbox_value:
@@ -309,7 +328,34 @@ def dashboard(request):
 
 
 def dashboard_reviews(request):
+    ratings_page = MovieRatings.objects.filter(userid=request.user)
+    return render(request, 'movie_app/dashboard_reviews.html', {'ratings_page': ratings_page})
+
+
+def dashboard_delete_review(request, review_id):
+    obj = get_object_or_404(MovieRatings, id=review_id)
+    obj.delete()
     return render(request, 'movie_app/dashboard_reviews.html')
+
+
+def dashboard_update_review(request, review_id):
+    if request.method == 'POST':
+        rating_form = MovieRatingsForm(data=request.POST)
+        if rating_form.is_valid():
+            title = rating_form.cleaned_data['title']
+            description = rating_form.cleaned_data['description']
+            rating = rating_form.cleaned_data['rating']
+            reviewtoupdate = MovieRatings.objects.get(id=review_id)
+            reviewtoupdate.title = title
+            reviewtoupdate.description = description
+            reviewtoupdate.rating = rating
+            reviewtoupdate.save()
+        else:
+            print(rating_form.errors)
+    else:
+        review_init = MovieRatings.objects.get(id=review_id)
+        rating_form = MovieRatingsForm(initial=model_to_dict(review_init))
+    return render(request, 'movie_app/dashboard_review_update.html', {'review_update_form': rating_form})
 
 
 def dashboard_settings(request):
@@ -328,3 +374,5 @@ def dashboard_settings(request):
                   {'user_form': user_form,
                    'profile_form': profile_form
                    })
+
+

@@ -10,7 +10,7 @@ from .models import UserProfileInfo, MovieRatings
 class UserForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput())
 
-    class Meta():
+    class Meta:
         model = User
         fields = ('first_name', 'last_name', 'username', 'password', 'email')
 

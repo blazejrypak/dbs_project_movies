@@ -79,10 +79,11 @@ class MovieRatings(models.Model):
     class Meta:
         db_table = 'movie_ratings'
 
+
 class MovieRatingsVotes(models.Model):
     id = models.AutoField(primary_key=True)
     userid = models.ForeignKey(User, models.DO_NOTHING, db_column='userid', blank=False, null=False)
-    movie_rating_id = models.ForeignKey('MovieRatings', models.DO_NOTHING, db_column='movieratingid', blank=False, null=False)
+    movie_rating_id = models.ForeignKey(MovieRatings, models.DO_NOTHING, db_column='movieratingid', blank=False, null=False)
     vote = models.BooleanField(null=False)
 
     class Meta:
