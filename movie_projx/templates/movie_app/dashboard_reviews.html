@@ -5,6 +5,22 @@
         <br>
         <hr>
         <div class="row-fluid">
+            <div class="row">
+                <div class="search-container">
+                    <form action="{% url 'dashboard_reviews' %}" method="get">
+                        <div class="form-group col-md-12">
+                          <label for="inputState">Sort by</label>
+                          <select id="inputState" class="form-control" name="sort_val">
+                                <option selected value="">Choose...</option>
+                              {% for type in sort_types %}
+                                <option value='{{type.id}}'>{{ type.name }}</option>
+                              {% endfor %}
+                          </select>
+                        </div>
+                    <input type="submit" name="" value="Search">
+                    </form>
+                </div>
+            </div>
             {% for rating in ratings_page %}
             <div class="col-sm-6">
                 <div class="card">

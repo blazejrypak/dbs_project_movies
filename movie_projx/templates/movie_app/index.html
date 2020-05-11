@@ -4,7 +4,6 @@
     <h1>Welcome to movie database app</h1>
     {% if user.is_authenticated %}
       <img src="{{ avatar_url }}" alt="avatar">
-       <img src="https://previews.123rf.com/images/codexserafinius/codexserafinius1710/codexserafinius171000033/87650389-fuck-you-hand-finger-logo-icon-.jpg" alt="Smiley face" height="42" width="42">
         <h2>Hello {{ user.username }}</h2>
     {% else %}
         <h2>Register or Login if you'd like to</h2>

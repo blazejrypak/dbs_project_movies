@@ -328,8 +328,23 @@ def dashboard(request):
 
 
 def dashboard_reviews(request):
-    ratings_page = MovieRatings.objects.filter(userid=request.user)
-    return render(request, 'movie_app/dashboard_reviews.html', {'ratings_page': ratings_page})
+    sort_val = request.GET.get('sort_val')
+    sort_types = [
+        {
+            'id': 'date',
+            'name': 'Date'
+        },
+        {
+            'id': 'popularity',
+            'name': 'Popularity'
+        }
+    ]
+    ratings_page = None
+    if sort_val == 'date':
+        ratings_page = MovieRatings.objects.filter(userid=request.user).order_by('created_at')
+    elif sort_val == 'popularity':
+        ratings_page = MovieRatings.objects.filter(userid=request.user).order_by('up_votes')
+    return render(request, 'movie_app/dashboard_reviews.html', {'ratings_page': ratings_page, 'sort_types': sort_types})
 
 
 def dashboard_delete_review(request, review_id):
@@ -349,6 +364,7 @@ def dashboard_update_review(request, review_id):
             reviewtoupdate.title = title
             reviewtoupdate.description = description
             reviewtoupdate.rating = rating
+            reviewtoupdate.updated_at = datetime.datetime.now()
             reviewtoupdate.save()
         else:
             print(rating_form.errors)
