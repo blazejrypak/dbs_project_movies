@@ -3,7 +3,7 @@
 {% block body_block %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/css/flag-icon.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-{#    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.1.0-4/js/all.js"></script>#}
+    {#    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.1.0-4/js/all.js"></script>#}
     <!-- Page Content -->
     <div class="container">
 
@@ -127,55 +127,93 @@
             <p>{{ movie.overview }}</p>
         </div>
         <div class="row">
-            <div class="col-md-12">
-                <div class="card form-group">
-                    <span class="card-header">
-                    <input class="form-control" placeholder="Enter title" id="title">
-                    </span>
-                    <div class="card-body">
-                        <textarea class="form-control animated card-text" cols="50" id="new-review" name="comment"
-                                  placeholder="Enter your review here..." rows="4"></textarea>
-                        <br>
-                        <span class="pull-right">
-                                <a class="float-right btn btn-success"> <i
-                                        class="glyphicon glyphicon-send"></i>  Send</a>
-                          </span>
-                    </div>
-                </div>
-            </div>
+
         </div>
-        <div class="row">
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            {% if user.is_authenticated %}
+                <form enctype="multipart/form-data" method="POST">
+
+
+                    <div class="card">
+                        <h5 class="card-header"> Add Review
+                        </h5>
+
+                        <div class="card-body">
+                            <div class="col-md-2">
+                                {% csrf_token %}
+                                {{ rating_form.as_p }}
+                                <input type="submit" value="Submit">
+                            </div>
+                            <div class="col-md-10">
+                            </div>
+                        </div>
+                        <div class="card-footer">
+
+                        </div>
+                    </div>
+
+
+                </form>
+            {% endif %}
+        </div>
+        {% for rating in ratings_page %}
             <div class="col-md-12">
+                <br>
+
                 <div class="card">
-                    <h5 class="card-header">Review title</h5>
+                    <h5 class="card-header"> <span class="badge badge-warning"> {{ rating.rating }} / 5</span> {{ rating.title }} <br>
+                        <a href="volaky linkes"><i class="fa fa-thumbs-o-up"></i></a> {{ rating.up_votes }}
+                        <a href="volaky linkes"><i class="fa fa-thumbs-o-down"></i></a> {{ rating.down_votes }}
+
+                    </h5>
+
                     <div class="card-body">
                         <div class="col-md-2">
                             <img src="https://image.ibb.co/jw55Ex/def_face.jpg"
                                  class="img img-rounded img-fluid max-width: 25%"/>
-                            <p class="text-secondary text-center">15 Minutes Ago</p>
+                            <p class="text-secondary text-center"> <span itemprop="name"> {{ rating.userid }}</span></p>
                         </div>
                         <div class="col-md-10">
-                            <h4 class="card-text">With supporting text below as a natural lead-in to additional
-                                content.</h4>
+                            <h4 class="card-text">{{ rating.description }} </h4>
                         </div>
                     </div>
                     <div class="card-footer">
                         <h5>
-                                <span itemprop="name">-- J. Reviewer</span>
-                                <i class="far fa-calendar-alt"></i>
-                                <span>
-                                     01-01-2016
-                                </span>
-                                <span class="pull-right">
-                              <i class="fa fa-star"></i>
-                              <i class="fa fa-star"></i>
-                              <i class="fa fa-star"></i>
-                              <i class="fa fa-star"></i>
-                              <i class="fa fa-star"></i>
-                          </span>
-                            </h5>
+                            <p class="text-secondary">
+                            <span>Last modification: {{ rating.updated_at }}</span>
+                            <br>
+                            <i class="far fa-calendar-alt"></i>
+                            <span>Created at: {{ rating.created_at }}</span>
+                            </p>
+                        </h5>
                     </div>
                 </div>
             </div>
+
+        {% endfor %}
+            <div class="row" style="background-color: #1abc9c">
+            <div class="container">
+                <div class="pagination">
+                    <span class="step-links">
+                        {% if ratings_page.has_previous %}
+                            <a href="?page=1">&laquo; first</a>
+                            <a href="?page={{ ratings_page.previous_page_number }}">previous</a>
+                        {% endif %}
+
+                        <span class="current">
+                            Page {{ ratings_page.number }} of {{ ratings_page.paginator.num_pages }}.
+                        </span>
+
+                        {% if ratings_page.has_next %}
+                            <a href="?page={{ ratings_page.next_page_number }}">next</a>
+                            <a href="?page={{ ratings_page.paginator.num_pages }}">last &raquo;</a>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
         </div>
+    </div>
 {% endblock %}
