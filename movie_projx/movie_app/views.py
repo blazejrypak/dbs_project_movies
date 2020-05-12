@@ -230,17 +230,24 @@ def movie_details(request, movie_id):
 def movie_ratings_vote(request, rating_id, vote_value):
     obj = MovieRatings.objects.get(id=rating_id)
     if obj.userid is not request.user:
-        if vote_value:
-            obj.up_votes = obj.up_votes + 1
-        elif not vote_value:
-            obj.down_votes = obj.down_votes + 1
-        obj.save()
-        p, created = MovieRatingsVotes.objects.get_or_create(movie_rating_id=obj, userid=request.user, vote=vote_value)
-        if not created:
-            p.userid = request.user
-            p.vote = vote_value
-            p.movie_rating_id = obj
+        p, created = MovieRatingsVotes.objects.get_or_create(movie_rating_id=obj, userid=request.user, defaults={'vote': vote_value})
+        if created:
+            if vote_value:
+                obj.up_votes = obj.up_votes + 1
+            elif not vote_value:
+                obj.down_votes = obj.down_votes + 1
+            obj.save()
+        else:
+            if vote_value and not p.vote:
+                obj.up_votes = obj.up_votes + 1
+                obj.down_votes = obj.down_votes - 1
+                p.vote = True
+            elif not vote_value and p.vote:
+                obj.down_votes = obj.down_votes + 1
+                obj.up_votes = obj.up_votes - 1
+                p.vote = False
             p.save()
+            obj.save()
     return redirect('movie_app:details', movie_id=obj.movieid.movieid)
 
 
