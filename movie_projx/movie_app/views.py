@@ -214,7 +214,7 @@ def movie_details(request, movie_id):
     if sort_val == 'date':
         movie_ratings = MovieRatings.objects.filter(userid=request.user).order_by('updated_at')
     elif sort_val == 'rank':
-        movie_ratings = MovieRatings.objects.filter(userid=request.user).annotate(rank=(Sum(F('up_votes')-F('down_votes'), output_field=FloatField()))*F('rating')).order_by('-rank')
+        movie_ratings = MovieRatings.objects.filter(userid=request.user).annotate(rank=(Sum(F('up_votes')+F('down_votes')))).order_by('-rank')
     elif sort_val == 'popularity':
         movie_ratings = MovieRatings.objects.filter(userid=request.user).annotate(popularity=(F('up_votes')-F('down_votes'))).order_by('-popularity')
     else:
