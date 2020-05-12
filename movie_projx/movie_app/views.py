@@ -16,6 +16,7 @@ from movie_projx import settings
 from .forms import UserForm, UserProfileInfoForm, MovieRatingsForm
 from .models import Movies, Genres, Languages, MoviesGenres, Productioncountries, Productioncompanies, Casts, \
     MovieRatings, MovieRatingsVotes
+from django.db.models import *
 
 from django.forms.models import model_to_dict
 
@@ -173,10 +174,6 @@ def movie_details(request, movie_id):
         f"""SELECT * FROM productioncompanies INNER JOIN movies_productioncompanies ON (productioncompanies.productioncompanyid = movies_productioncompanies.productioncompanies_id) WHERE movies_productioncompanies.movie_id = {movie_id}""")
     casts = Casts.objects.raw(f"""SELECT 1 as castID,* FROM casts WHERE casts.movie_id = {movie_id}""")
 
-    movie_ratings = MovieRatings.objects.filter(movieid=movie_id)
-    ratings_paginator = Paginator(movie_ratings, 10)  # 10 movies per page
-    ratings_page = ratings_paginator.get_page(request.GET.get('page'))
-
     rating_bar = {
         'one': 10,
         'two': 2,
@@ -199,27 +196,51 @@ def movie_details(request, movie_id):
             pass
     else:
         rating_form = MovieRatingsForm()
-
-
+    sort_val = request.GET.get('sort_val')
+    sort_types = [
+        {
+            'id': 'date',
+            'name': 'Date'
+        },
+        {
+            'id': 'rank',
+            'name': 'Ranking'
+        },
+        {
+            'id': 'popularity',
+            'name': 'Popularity'
+        }
+    ]
+    if sort_val == 'date':
+        movie_ratings = MovieRatings.objects.filter(userid=request.user).order_by('updated_at')
+    elif sort_val == 'rank':
+        movie_ratings = MovieRatings.objects.filter(userid=request.user).annotate(rank=(Sum(F('up_votes')-F('down_votes'), output_field=FloatField()))*F('rating')).order_by('-rank')
+    elif sort_val == 'popularity':
+        movie_ratings = MovieRatings.objects.filter(userid=request.user).annotate(popularity=(F('up_votes')-F('down_votes'))).order_by('-popularity')
+    else:
+        movie_ratings = MovieRatings.objects.filter(userid=request.user)
+    ratings_paginator = Paginator(movie_ratings, 10)  # 10 movies per page
+    ratings_page = ratings_paginator.get_page(request.GET.get('page'))
     return render(request, 'movie_app/movie_details.html',
                   {'movie': movie_obj, 'genres': genres, 'production_countries': production_countries,
                    'production_companies': production_companies, 'casts': casts, 'rating_bar': rating_bar,
-                   'rating_form': rating_form, 'ratings_page': ratings_page})
+                   'rating_form': rating_form, 'ratings_page': ratings_page, 'sort_types': sort_types})
 
 
 def movie_ratings_vote(request, rating_id, vote_value):
     obj = MovieRatings.objects.get(id=rating_id)
-    if vote_value:
-        obj.up_votes = obj.up_votes + 1
-    elif not vote_value:
-        obj.down_votes = obj.down_votes + 1
-    obj.save()
-    p, created = MovieRatingsVotes.objects.get_or_create(movie_rating_id=obj, userid=request.user, vote=vote_value)
-    if not created:
-        p.userid = request.user
-        p.vote = vote_value
-        p.movie_rating_id = obj
-        p.save()
+    if obj.userid is not request.user:
+        if vote_value:
+            obj.up_votes = obj.up_votes + 1
+        elif not vote_value:
+            obj.down_votes = obj.down_votes + 1
+        obj.save()
+        p, created = MovieRatingsVotes.objects.get_or_create(movie_rating_id=obj, userid=request.user, vote=vote_value)
+        if not created:
+            p.userid = request.user
+            p.vote = vote_value
+            p.movie_rating_id = obj
+            p.save()
     return redirect('movie_app:details', movie_id=obj.movieid.movieid)
 
 
@@ -343,7 +364,7 @@ def dashboard_reviews(request):
     if sort_val == 'date':
         ratings_page = MovieRatings.objects.filter(userid=request.user).order_by('created_at')
     elif sort_val == 'popularity':
-        ratings_page = MovieRatings.objects.filter(userid=request.user).order_by('up_votes')
+        ratings_page = MovieRatings.objects.filter(userid=request.user).annotate(popularity=(F('up_votes')-F('down_votes'))).order_by('-popularity')
     return render(request, 'movie_app/dashboard_reviews.html', {'ratings_page': ratings_page, 'sort_types': sort_types})
 
 

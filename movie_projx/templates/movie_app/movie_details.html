@@ -130,7 +130,22 @@
 
         </div>
     </div>
-
+    <div class="row">
+        <div class="search-container">
+            <form action="{% url 'movie_app:details' movie_id=movie.movieid %}" method="get">
+                <div class="form-group col-md-12">
+                    <label for="inputState">Sort by</label>
+                    <select id="inputState" class="form-control" name="sort_val">
+                        <option selected value="">Choose...</option>
+                        {% for type in sort_types %}
+                            <option value='{{ type.id }}'>{{ type.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <input type="submit" name="" value="Search">
+            </form>
+        </div>
+    </div>
     <div class="row">
         <div class="col-md-12">
             {% if user.is_authenticated %}
@@ -164,9 +179,12 @@
                 <br>
 
                 <div class="card">
-                    <h5 class="card-header"> <span class="badge badge-warning"> {{ rating.rating }} / 5</span> {{ rating.title }} <br>
-                        <a href="{% url 'movie_app:movie_ratings_vote' rating_id=rating.id vote_value=1 %}"><i class="fa fa-thumbs-o-up"></i></a> {{ rating.up_votes }}
-                        <a href="{% url 'movie_app:movie_ratings_vote' rating_id=rating.id vote_value=0 %}"><i class="fa fa-thumbs-o-down"></i></a> {{ rating.down_votes }}
+                    <h5 class="card-header"><span
+                            class="badge badge-warning"> {{ rating.rating }} / 5</span> {{ rating.title }} <br>
+                        <a href="{% url 'movie_app:movie_ratings_vote' rating_id=rating.id vote_value=1 %}"><i
+                                class="fa fa-thumbs-o-up"></i></a> {{ rating.up_votes }}
+                        <a href="{% url 'movie_app:movie_ratings_vote' rating_id=rating.id vote_value=0 %}"><i
+                                class="fa fa-thumbs-o-down"></i></a> {{ rating.down_votes }}
 
                     </h5>
 
@@ -174,7 +192,7 @@
                         <div class="col-md-2">
                             <img src="https://image.ibb.co/jw55Ex/def_face.jpg"
                                  class="img img-rounded img-fluid max-width: 25%"/>
-                            <p class="text-secondary text-center"> <span itemprop="name"> {{ rating.userid }}</span></p>
+                            <p class="text-secondary text-center"><span itemprop="name"> {{ rating.userid }}</span></p>
                         </div>
                         <div class="col-md-10">
                             <h4 class="card-text">{{ rating.description }} </h4>
@@ -183,10 +201,10 @@
                     <div class="card-footer">
                         <h5>
                             <p class="text-secondary">
-                            <span>Last modification: {{ rating.updated_at }}</span>
-                            <br>
-                            <i class="far fa-calendar-alt"></i>
-                            <span>Created at: {{ rating.created_at }}</span>
+                                <span>Last modification: {{ rating.updated_at }}</span>
+                                <br>
+                                <i class="far fa-calendar-alt"></i>
+                                <span>Created at: {{ rating.created_at }}</span>
                             </p>
                         </h5>
                     </div>
@@ -194,7 +212,7 @@
             </div>
 
         {% endfor %}
-            <div class="row" style="background-color: #1abc9c">
+        <div class="row" style="background-color: #1abc9c">
             <div class="container">
                 <div class="pagination">
                     <span class="step-links">
