@@ -1,0 +1,30 @@
+{% extends 'movie_app/dashboard_base.html' %}
+{% block body_block %}
+    <div class="container">
+        <br>
+        <br>
+        <hr>
+        <div class="row-fluid">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Title</th>
+                  <th scope="col">Original Language</th>
+                  <th scope="col">Average Rating</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for rep in report_list %}
+                <tr>
+                  <th scope="row">{{forloop.counter}}</th>
+                  <td>{{ rep.title }}</td>
+                  <td>{{ rep.original_language }}</td>
+                  <td>{{ rep.avg_rating }}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

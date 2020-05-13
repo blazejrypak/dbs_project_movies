@@ -6,6 +6,7 @@ from django.contrib.auth.hashers import *
 from django.core.paginator import Paginator
 from django.db import connection
 from django.db.models import Q
+from django.db.models.functions import ExtractYear
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
@@ -403,6 +404,26 @@ def dashboard_update_review(request, review_id):
         review_init = MovieRatings.objects.get(id=review_id)
         rating_form = MovieRatingsForm(initial=model_to_dict(review_init))
     return render(request, 'movie_app/dashboard_review_update.html', {'review_update_form': rating_form})
+
+
+def dashboard_reports(request):
+    """
+    Report show how better or worse is one movie from another, just from slovak movies ordered by year
+    :param request:
+    :return:
+    """
+    report_list = Movies.objects.raw('''
+    SELECT movieid, title, original_language, avg_rating
+        FROM (
+                 SELECT "movies"."movieid", "movies"."title",
+                        "movies"."original_language",
+                        AVG("movies"."popularity")
+                        OVER (PARTITION BY "movies"."original_language"
+                            ORDER BY EXTRACT('year' FROM "movies"."release_date")) AS "avg_rating"
+                 FROM "movies"
+             ) tmp
+        WHERE original_language IN ('sk') LIMIT 50''')
+    return render(request, 'movie_app/dashboard_reports.html', {'report_list': report_list})
 
 
 def dashboard_settings(request):
