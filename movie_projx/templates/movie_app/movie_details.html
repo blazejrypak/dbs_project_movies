@@ -181,10 +181,12 @@
                 <div class="card">
                     <h5 class="card-header"><span
                             class="badge badge-warning"> {{ rating.rating }} / 5</span> {{ rating.title }} <br>
+                        {% if user.is_authenticated %}
                         <a href="{% url 'movie_app:movie_ratings_vote' rating_id=rating.id vote_value=1 %}"><i
                                 class="fa fa-thumbs-o-up"></i></a> {{ rating.up_votes }}
                         <a href="{% url 'movie_app:movie_ratings_vote' rating_id=rating.id vote_value=0 %}"><i
                                 class="fa fa-thumbs-o-down"></i></a> {{ rating.down_votes }}
+                        {% endif %}
 
                     </h5>
 

@@ -50,11 +50,6 @@ def gen_add_user_sql(_username, _email, _password):
 
 
 def index(request):
-    if request.user.id is not None:
-        print(request.user.id)
-        # row = get_row(f"""-- SELECT profile_pic FROM movie_app_userprofileinfo WHERE user_id={request.user.id}""")
-        # return render(request, 'movie_app/index.html', {'avatar_url':  settings.MEDIA_URL + 'profile_pics/' + row[0]})
-        return render(request, 'movie_app/index.html')
     return render(request, 'movie_app/index.html')
 
 
@@ -175,20 +170,28 @@ def movie_details(request, movie_id):
     casts = Casts.objects.raw(f"""SELECT 1 as castID,* FROM casts WHERE casts.movie_id = {movie_id}""")
 
     rating_bar = {
-        'one': 10,
-        'two': 2,
-        'three': 6,
-        'four': 8,
-        'five': 15,
-        'sum': 41
+        'one': get_row(
+            f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating <= 1) AS derTable''')[
+            0],
+        'two': get_row(
+            f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating > 1 AND rating <= 2) AS derTable''')[
+            0],
+        'three': get_row(
+            f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating > 2 AND rating <= 3) AS derTable''')[
+            0],
+        'four': get_row(
+            f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating > 3 AND rating <= 4) AS derTable''')[
+            0],
+        'five': get_row(
+            f'''SELECT sum(counter) FROM (SELECT COUNT(rating) AS counter, rating FROM Movie_Ratings WHERE movieID = {movie_id} GROUP BY rating HAVING rating > 4) AS derTable''')[
+            0],
+        'sum': get_row(f'''SELECT COUNT(rating) FROM Movie_Ratings WHERE movieID = {movie_id}''')[0]
     }
 
     if request.method == 'POST':
         rating_form = MovieRatingsForm(request.POST)
         if rating_form.is_valid():
-
-
-            new_rating = MovieRatings.objects.create(title= rating_form.cleaned_data['title'], description= rating_form.cleaned_data['description'],rating=rating_form.cleaned_data['rating'], movieid=movie_obj, userid=request.user, created_at=timezone.now(), updated_at=timezone.now())
+            new_rating = MovieRatings.objects.create(title=rating_form.cleaned_data['title'], description= rating_form.cleaned_data['description'],rating=rating_form.cleaned_data['rating'], movieid=movie_obj, userid=request.user, created_at=timezone.now(), updated_at=timezone.now())
             new_rating.save()
             return HttpResponseRedirect(reverse('movie_app:details', args=(movie_id,)))
 
@@ -212,13 +215,13 @@ def movie_details(request, movie_id):
         }
     ]
     if sort_val == 'date':
-        movie_ratings = MovieRatings.objects.filter(userid=request.user).order_by('updated_at')
+        movie_ratings = MovieRatings.objects.filter(movieid=movie_id).order_by('updated_at')
     elif sort_val == 'rank':
-        movie_ratings = MovieRatings.objects.filter(userid=request.user).annotate(rank=(Sum(F('up_votes')+F('down_votes')))).order_by('-rank')
+        movie_ratings = MovieRatings.objects.filter(movieid=movie_id).annotate(rank=(Sum(F('up_votes')+F('down_votes')))).order_by('-rank')
     elif sort_val == 'popularity':
-        movie_ratings = MovieRatings.objects.filter(userid=request.user).annotate(popularity=(F('up_votes')-F('down_votes'))).order_by('-popularity')
+        movie_ratings = MovieRatings.objects.filter(movieid=movie_id).annotate(popularity=(F('up_votes')-F('down_votes'))).order_by('-popularity')
     else:
-        movie_ratings = MovieRatings.objects.filter(userid=request.user)
+        movie_ratings = MovieRatings.objects.filter(movieid=movie_id)
     ratings_paginator = Paginator(movie_ratings, 10)  # 10 movies per page
     ratings_page = ratings_paginator.get_page(request.GET.get('page'))
     return render(request, 'movie_app/movie_details.html',
